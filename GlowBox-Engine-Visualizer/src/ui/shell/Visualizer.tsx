@@ -1,6 +1,8 @@
 import { useUIStore } from '@store/ui.store'
 import { THEMES } from '@store/theme.types'
 import { Navbar } from './Navbar'
+import { BottomControls } from './BottomControls'
+import { AnnotationPopup } from './AnnotationPopup'
 import styles from './Visualizer.module.css'
 
 export function Visualizer() {
@@ -29,19 +31,13 @@ export function Visualizer() {
             Index canvas — coming next
           </p>
         </div>
+        
+        {/* Layer Registry rendering would go here in the future */}
+        
+        <AnnotationPopup />
       </main>
 
-      {/* ── Bottom controls bar ── */}
-      <footer className={`glass ${styles.footer}`}>
-        <div className={styles.footerInner}>
-          <span className="label" style={{ color: activeTheme.accent }}>
-            {THEMES[theme].name} — {THEMES[theme].presetDataset.label}
-          </span>
-          <span className={styles.footerHint}>
-            Insert · Delete · Select operations coming soon
-          </span>
-        </div>
-      </footer>
+      <BottomControls />
     </div>
   )
 }
