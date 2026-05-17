@@ -1,20 +1,25 @@
 import { create } from 'zustand'
 import type { ThemeId } from './theme.types'
 
-export type AppScreen = 'landing' | 'visualizer'
+export type AppScreen = 'landing' | 'index-picker' | 'visualizer'
+export type IndexType = 'bplus' | 'hash' | 'rtree'
 
 interface UIState {
   screen: AppScreen
   theme: ThemeId
   speed: number          // 0.25 – 3.0  (GSAP timeScale multiplier)
   annotationsOn: boolean
-  pageSize: number       // bytes — drives node capacity
+  maxKeys: number        // 2, 4, 6, 8
+  utilization: number    // 50, 75
+  indexType: IndexType
 
   setScreen: (s: AppScreen) => void
   setTheme: (t: ThemeId) => void
   setSpeed: (v: number) => void
   toggleAnnotations: () => void
-  setPageSize: (v: number) => void
+  setMaxKeys: (v: number) => void
+  setUtilization: (v: number) => void
+  setIndexType: (i: IndexType) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -22,12 +27,16 @@ export const useUIStore = create<UIState>((set) => ({
   theme:          'nebula',
   speed:          1,
   annotationsOn:  false,
-  pageSize:       4096,
+  maxKeys:        4,
+  utilization:    50,
+  indexType:      'bplus',
 
   setScreen:  (screen)  => set({ screen }),
   setTheme:   (theme)   => set({ theme }),
   setSpeed:   (speed)   => set({ speed }),
   toggleAnnotations: () =>
     set((s) => ({ annotationsOn: !s.annotationsOn })),
-  setPageSize: (pageSize) => set({ pageSize }),
+  setMaxKeys: (maxKeys) => set({ maxKeys }),
+  setUtilization: (utilization) => set({ utilization }),
+  setIndexType: (indexType) => set({ indexType }),
 }))

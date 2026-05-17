@@ -1,5 +1,6 @@
 import { useUIStore } from '@store/ui.store'
 import { THEMES } from '@store/theme.types'
+import { useSessionStore } from '@store/session.store'
 import styles from './Navbar.module.css'
 
 const PAGE_SIZES = [1024, 2048, 4096, 8192, 16384]
@@ -10,8 +11,8 @@ function formatPageSize(b: number) {
 
 export function Navbar() {
   const {
-    theme, speed, annotationsOn, pageSize,
-    setSpeed, toggleAnnotations, setPageSize, setScreen,
+    theme, speed, annotationsOn, maxKeys, utilization,
+    setSpeed, toggleAnnotations, setMaxKeys, setUtilization, setScreen,
   } = useUIStore()
 
   const activeTheme = THEMES[theme]
@@ -28,25 +29,54 @@ export function Navbar() {
         <span className={styles.logoText}>GlowBox</span>
       </button>
 
-      {/* ── Center: Page Size ── */}
-      <div className={styles.center}>
-        <span className="label" style={{ color: activeTheme.accent }}>Page Size</span>
-        <div className={styles.pageSizePills}>
-          {PAGE_SIZES.map((s) => (
-            <button
-              key={s}
-              className={`${styles.pill} ${pageSize === s ? styles.pillActive : ''}`}
-              style={pageSize === s ? {
-                background: activeTheme.accentGlow,
-                borderColor: activeTheme.accent,
-                color: activeTheme.accent,
-                boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
-              } : {}}
-              onClick={() => setPageSize(s)}
-            >
-              {formatPageSize(s)}
-            </button>
-          ))}
+      {/* ── Center: Max Keys & Utilization ── */}
+      <div className={styles.center} style={{ gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span className="label" style={{ color: activeTheme.accent }}>Max Keys</span>
+          <div className={styles.pageSizePills}>
+            {[2, 4, 6, 8].map((s) => (
+              <button
+                key={s}
+                className={`${styles.pill} ${maxKeys === s ? styles.pillActive : ''}`}
+                style={maxKeys === s ? {
+                  background: activeTheme.accentGlow,
+                  borderColor: activeTheme.accent,
+                  color: activeTheme.accent,
+                  boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
+                } : {}}
+                onClick={() => {
+                  setMaxKeys(s);
+                  useSessionStore.getState().clearSession();
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span className="label" style={{ color: activeTheme.accent }}>Utilization</span>
+          <div className={styles.pageSizePills}>
+            {[50, 75].map((u) => (
+              <button
+                key={u}
+                className={`${styles.pill} ${utilization === u ? styles.pillActive : ''}`}
+                style={utilization === u ? {
+                  background: activeTheme.accentGlow,
+                  borderColor: activeTheme.accent,
+                  color: activeTheme.accent,
+                  boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
+                } : {}}
+                onClick={() => {
+                  setUtilization(u);
+                  useSessionStore.getState().clearSession();
+                }}
+              >
+                {u}%
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

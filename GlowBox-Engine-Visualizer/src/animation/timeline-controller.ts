@@ -18,12 +18,15 @@ export class TimelineController {
     
     for (const layer of layers) {
       if (layer.onDiff) {
-        layer.onDiff(diff);
+        const result = layer.onDiff(diff);
+        if (result && result instanceof gsap.core.Timeline) {
+          this.masterTimeline.add(result);
+        } else if (result && result instanceof gsap.core.Tween) {
+          this.masterTimeline.add(result);
+        }
       }
     }
     
-    // In a real implementation, we might wait for a tween to finish if we are advancing step by step,
-    // or just let it play continuously. Here we just let it run.
     if (this.masterTimeline.paused()) {
       this.masterTimeline.play();
     }

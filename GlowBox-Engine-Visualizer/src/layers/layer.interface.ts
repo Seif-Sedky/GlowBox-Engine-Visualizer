@@ -5,5 +5,5 @@ export interface VisualizationLayer {
   id: string;
   label: string;
   component: ComponentType;
-  onDiff?: (diff: Diff) => void;
+  onDiff?: (diff: Diff) => any;
 }

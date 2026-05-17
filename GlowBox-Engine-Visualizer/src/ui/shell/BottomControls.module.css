@@ -13,7 +13,6 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Glow effect matching the current theme */
 .bottomControlsContainer::before {
   content: '';
   position: absolute;
@@ -26,6 +25,8 @@
   mask-composite: exclude;
   opacity: 0.5;
   transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .bottomControlsContainer:hover::before {

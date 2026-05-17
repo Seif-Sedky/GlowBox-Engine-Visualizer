@@ -18,7 +18,7 @@ export function Landing() {
 
   function handleEnter() {
     setEntered(true)
-    setTimeout(() => setScreen('visualizer'), 700)
+    setTimeout(() => setScreen('index-picker'), 700)
   }
 
   const activeTheme = THEMES[theme]

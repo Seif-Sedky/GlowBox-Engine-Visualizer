@@ -1,0 +1,67 @@
+.svgCanvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: all;
+  cursor: grab;
+}
+
+.svgCanvas:active {
+  cursor: grabbing;
+}
+
+.nodeGroup {
+  transition: opacity 0.3s ease;
+}
+
+.nodeRect {
+  fill: var(--glass-fill);
+  stroke: var(--glass-border);
+  stroke-width: 1;
+  rx: var(--radius-sm);
+  ry: var(--radius-sm);
+  transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.nodeRect.highlight {
+  stroke: var(--accent);
+  filter: url(#glow-md);
+}
+
+.keyGroup {
+  /* Internal group for keys */
+}
+
+.keyRect {
+  fill: transparent;
+  stroke: var(--glass-border);
+  stroke-width: 1;
+}
+
+.keyText {
+  fill: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.keyText.highlight {
+  fill: var(--accent);
+  font-weight: bold;
+  text-shadow: 0 0 8px var(--accent-glow);
+}
+
+.linkPath {
+  fill: none;
+  stroke: var(--glass-border);
+  stroke-width: 2;
+  transition: stroke 0.3s ease;
+}
+
+.linkPath.highlight {
+  stroke: var(--accent);
+  filter: url(#glow-md);
+}

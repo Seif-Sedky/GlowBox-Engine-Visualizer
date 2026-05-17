@@ -1,6 +1,7 @@
 import { useUIStore } from '@store/ui.store'
 import { Starfield } from '@ui/canvas/Starfield'
 import { Landing } from '@ui/shell/Landing'
+import { IndexPicker } from '@ui/shell/IndexPicker'
 import { Visualizer } from '@ui/shell/Visualizer'
 
 export function App() {
@@ -33,8 +34,9 @@ export function App() {
       <Starfield theme={theme} />
 
       {/* Screen router */}
-      {screen === 'landing'    && <Landing />}
-      {screen === 'visualizer' && <Visualizer />}
+      {screen === 'landing'      && <Landing />}
+      {screen === 'index-picker' && <IndexPicker />}
+      {screen === 'visualizer'   && <Visualizer />}
     </div>
   )
 }
