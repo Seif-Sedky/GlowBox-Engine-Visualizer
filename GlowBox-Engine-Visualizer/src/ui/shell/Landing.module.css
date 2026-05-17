@@ -1,0 +1,304 @@
+.root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-10);
+  padding: var(--space-8) var(--space-6);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out-expo);
+}
+
+.root.visible {
+  opacity: 1;
+}
+
+.root.exiting {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.6s var(--ease-in-out),
+              transform 0.6s var(--ease-in-out);
+}
+
+/* ── Background blob ── */
+.blob {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 500px;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  transition: background 1s var(--ease-in-out);
+  animation: pulse-glow 6s ease-in-out infinite;
+}
+
+/* ── Header ── */
+.header {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.logoMark {
+  color: var(--accent);
+  font-size: 18px;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  animation: fadeUp 0.8s var(--ease-out-expo) 0.1s both;
+}
+
+.eyebrow {
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.title {
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    var(--accent) 50%,
+    var(--accent-secondary) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+  animation:
+    fadeUp 0.8s var(--ease-out-expo) 0.15s both,
+    shimmer 6s linear infinite;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 440px;
+  animation: fadeUp 0.8s var(--ease-out-expo) 0.25s both;
+}
+
+/* ── Theme section ── */
+.themeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  animation: fadeUp 0.8s var(--ease-out-expo) 0.35s both;
+}
+
+.themeLabel {
+  color: var(--text-muted);
+}
+
+.cards {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── Card ── */
+.card {
+  position: relative;
+  width: 240px;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  overflow: hidden;
+  transition:
+    transform 0.25s var(--ease-out-expo),
+    background 0.3s var(--ease-in-out),
+    border-color 0.3s var(--ease-in-out);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--card-accent);
+  outline-offset: 3px;
+}
+
+.cardGlowOrb {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-in-out);
+}
+
+.activeRing {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.cardBar {
+  height: 2px;
+  width: 36px;
+  border-radius: 1px;
+  margin-bottom: var(--space-5);
+}
+
+.cardName {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-2);
+  transition: color 0.3s var(--ease-in-out);
+}
+
+.cardTagline {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-5);
+}
+
+.cardDataset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--glass-border);
+}
+
+.datasetName {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: var(--space-1);
+}
+
+.datasetDesc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.selectionDot {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition:
+    background 0.3s var(--ease-in-out),
+    box-shadow 0.3s var(--ease-in-out);
+}
+
+.cardActive .cardName {
+  color: var(--card-accent);
+}
+
+/* ── Enter Button ── */
+.enterWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  animation: fadeUp 0.8s var(--ease-out-expo) 0.5s both;
+}
+
+.enterBtn {
+  position: relative;
+  padding: 0;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 100px;
+  background: none;
+}
+
+.enterBtnInner {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 14px 44px;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--bg-void);
+  background: linear-gradient(135deg, var(--btn-accent), var(--btn-accent-2));
+  transition: transform 0.2s var(--ease-out-expo), filter 0.2s;
+}
+
+.enterBtn:hover .enterBtnInner {
+  transform: scale(1.04);
+  filter: brightness(1.1);
+}
+
+.enterBtn:active .enterBtnInner {
+  transform: scale(0.98);
+}
+
+.enterBtnGlow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 100px;
+  background: radial-gradient(ellipse, var(--btn-glow), transparent 70%);
+  filter: blur(8px);
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.enterBtn:hover .enterBtnGlow {
+  opacity: 1;
+}
+
+.enterHint {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+/* ── Responsive ── */
+@media (max-width: 800px) {
+  .cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  .card {
+    width: 100%;
+    max-width: 320px;
+  }
+}
