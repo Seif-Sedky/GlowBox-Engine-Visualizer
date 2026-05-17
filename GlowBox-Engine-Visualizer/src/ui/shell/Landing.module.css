@@ -63,6 +63,124 @@
   color: var(--text-secondary);
 }
 
+/* ── Top Right ── */
+.topRight {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-8);
+  z-index: 10;
+}
+
+.aboutBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out-expo);
+  backdrop-filter: blur(10px);
+}
+
+.aboutBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--glass-border-hover);
+}
+
+/* ── Modal ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 10, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  animation: fadeIn 0.3s var(--ease-out-expo);
+}
+
+.modalContent {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  padding: var(--space-8);
+  animation: fadeUp 0.4s var(--ease-out-expo);
+}
+
+.closeBtn {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: var(--space-2);
+  transition: color 0.2s;
+}
+
+.closeBtn:hover {
+  color: var(--text-primary);
+}
+
+.modalTitle {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--accent);
+  margin-bottom: var(--space-4);
+}
+
+.modalText {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.modalDivider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: var(--space-6) 0;
+}
+
+.modalSubtitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.modalLinks {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.modalLinks a {
+  color: var(--accent-secondary);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.modalLinks a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.modalLabel {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-right: var(--space-2);
+}
+
 /* ── Hero ── */
 .hero {
   text-align: center;

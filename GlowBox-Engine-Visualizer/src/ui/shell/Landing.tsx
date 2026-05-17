@@ -9,6 +9,7 @@ export function Landing() {
   const [hovered, setHovered] = useState<ThemeId | null>(null)
   const [entered, setEntered] = useState(false)
   const [visible, setVisible] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80)
@@ -38,6 +39,13 @@ export function Landing() {
         <span className={styles.logoMark}>✦</span>
         <span className={styles.logoText}>GlowBox</span>
       </header>
+
+      {/* ── Top Right Actions ── */}
+      <div className={styles.topRight}>
+        <button className={styles.aboutBtn} onClick={() => setShowAbout(true)}>
+          About
+        </button>
+      </div>
 
       {/* ── Hero ── */}
       <section className={styles.hero}>
@@ -142,6 +150,29 @@ export function Landing() {
           {activeTheme.presetDataset.description}
         </p>
       </div>
+
+      {/* ── About Modal ── */}
+      {showAbout && (
+        <div className={styles.modalOverlay} onClick={() => setShowAbout(false)}>
+          <div className={`glass ${styles.modalContent}`} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeBtn} onClick={() => setShowAbout(false)}>✕</button>
+            <h2 className={styles.modalTitle}>About GlowBox</h2>
+            <p className={styles.modalText}>
+              GlowBox engine is my second baby project after NeoJackaroo, it is one that I am deeply passionate about, and intending to expand in the future, it includes a very small subset things that really facsinated me about one of the most sophisticated yet elegant softwares known to man, AKA database engines.
+            </p>
+            
+            <div className={styles.modalDivider} />
+            
+            <h3 className={styles.modalSubtitle}>Contact & Personal Profile</h3>
+            <ul className={styles.modalLinks}>
+              <li><span className={styles.modalLabel}>Name:</span> Seif Alaa</li>
+              <li><span className={styles.modalLabel}>Email:</span> <a href="mailto:seif.alaa1231@gmail.com">seif.alaa1231@gmail.com</a></li>
+              <li><span className={styles.modalLabel}>LinkedIn:</span> <a href="https://linkedin.com/in/seif Alaa02" target="_blank" rel="noreferrer">linkedin.com/in/seif Alaa02</a></li>
+              <li><span className={styles.modalLabel}>GitHub:</span> <a href="https://github.com/Seif-Sedky" target="_blank" rel="noreferrer">github.com/Seif-Sedky</a></li>
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
