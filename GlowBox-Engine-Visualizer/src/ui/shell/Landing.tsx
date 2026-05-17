@@ -41,7 +41,6 @@ export function Landing() {
 
       {/* ── Hero ── */}
       <section className={styles.hero}>
-        <p className={`label ${styles.eyebrow}`}>Database Engine Visualizer</p>
 
         <h1 className={`display-xl ${styles.title} glow-text`}>
           GlowBox
@@ -59,7 +58,7 @@ export function Landing() {
 
         <div className={styles.cards}>
           {(Object.values(THEMES) as typeof THEMES[ThemeId][]).map((t) => {
-            const isActive  = theme === t.id
+            const isActive = theme === t.id
             const isHovered = hovered === t.id
 
             return (
@@ -71,9 +70,9 @@ export function Landing() {
                   ${isActive ? styles.cardActive : ''}
                 `}
                 style={{
-                  '--card-accent':   t.accent,
+                  '--card-accent': t.accent,
                   '--card-accent-2': t.accentSecondary,
-                  '--card-glow':     t.accentGlow,
+                  '--card-glow': t.accentGlow,
                 } as React.CSSProperties}
                 onClick={() => setTheme(t.id)}
                 onMouseEnter={() => setHovered(t.id)}
@@ -128,9 +127,9 @@ export function Landing() {
           className={styles.enterBtn}
           onClick={handleEnter}
           style={{
-            '--btn-accent':   activeTheme.accent,
+            '--btn-accent': activeTheme.accent,
             '--btn-accent-2': activeTheme.accentSecondary,
-            '--btn-glow':     activeTheme.accentGlow,
+            '--btn-glow': activeTheme.accentGlow,
           } as React.CSSProperties}
         >
           <span className={styles.enterBtnInner}>
