@@ -82,13 +82,11 @@ export const BottomControls: React.FC = () => {
     setInputValue('');
   };
 
-  const handlePlayPreset = () => {
-    console.log(`Play preset for ${activeTheme.name}`);
-    // Will run the preset generator and queue the ops
-  };
-
-  const handleRewind = () => {
-    timelineController.rewind();
+  const handleReset = () => {
+    queue.clear();
+    useSessionStore.getState().clearSession();
+    useUIStore.getState().setStepLog([]);
+    setInputValue('');
   };
 
   return (
@@ -109,17 +107,10 @@ export const BottomControls: React.FC = () => {
 
       <div className={styles.divider} />
 
-      <button className={styles.controlBtn} onClick={handlePlayPreset} title="Play Preset">
-        {/* Play Icon */}
-        <svg viewBox="0 0 24 24">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-      </button>
-
-      <button className={styles.controlBtn} onClick={handleRewind} title="Rewind">
-        {/* Rewind Icon */}
-        <svg viewBox="0 0 24 24">
-          <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+      <button className={styles.controlBtn} onClick={handleReset} title="Reset Engine">
+        {/* Reset / Refresh Icon */}
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
         </svg>
       </button>
 
