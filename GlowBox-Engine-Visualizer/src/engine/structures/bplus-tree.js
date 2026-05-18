@@ -95,16 +95,8 @@ export class BPlusTree {
         if (node.isLeaf) {
             // Find insertion point
             let insertIndex = 0;
-            while (insertIndex < node.keys.length && node.keys[insertIndex] < key) {
+            while (insertIndex < node.keys.length && node.keys[insertIndex] <= key) {
                 insertIndex++;
-            }
-            if (node.keys[insertIndex] === key) {
-                diffs.push({
-                    type: 'ANNOTATION',
-                    annotation: `Key ${key} already exists. Ignoring.`,
-                    payload: { key }
-                });
-                return null;
             }
             // Insert key into leaf
             node.keys.splice(insertIndex, 0, key);

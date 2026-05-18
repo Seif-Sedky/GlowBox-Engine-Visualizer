@@ -7,6 +7,7 @@ export const useUIStore = create((set) => ({
     maxKeys: 4,
     minKeys: 2,
     indexType: 'bplus',
+    stepLog: [],
     setScreen: (screen) => set({ screen }),
     setTheme: (theme) => set({ theme }),
     setSpeed: (speed) => set({ speed }),
@@ -14,5 +15,6 @@ export const useUIStore = create((set) => ({
     setMaxKeys: (maxKeys) => set({ maxKeys }),
     setMinKeys: (minKeys) => set({ minKeys }),
     setIndexType: (indexType) => set({ indexType }),
+    setStepLog: (stepLog) => set({ stepLog }),
 }));
 //# sourceMappingURL=ui.store.js.map

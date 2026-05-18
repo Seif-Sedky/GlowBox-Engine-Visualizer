@@ -16,6 +16,12 @@
   transition: opacity 0.3s ease;
 }
 
+.nodeGroup:hover .nodeRect {
+  stroke: var(--accent);
+  filter: url(#glow-md);
+  cursor: pointer;
+}
+
 .nodeRect {
   fill: var(--glass-fill);
   stroke: var(--glass-border);

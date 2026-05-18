@@ -37,6 +37,10 @@ export const BottomControls: React.FC = () => {
     const tree = getOrInitTree();
     const diffs = tree.insert(val);
     
+    useUIStore.getState().setStepLog(
+      diffs.filter(d => d.type === 'ANNOTATION').map(d => d.annotation || '')
+    );
+    
     // Trigger re-render to update D3 layout in IndexLayer immediately (FLIP approach or direct)
     // Note: In a true diff approach, we'd wait for queue. Here we just update React.
     setTreeState(Object.assign(Object.create(Object.getPrototypeOf(tree)), tree)); 
@@ -53,6 +57,10 @@ export const BottomControls: React.FC = () => {
     const tree = getOrInitTree();
     const diffs = tree.delete(val);
     
+    useUIStore.getState().setStepLog(
+      diffs.filter(d => d.type === 'ANNOTATION').map(d => d.annotation || '')
+    );
+
     setTreeState(Object.assign(Object.create(Object.getPrototypeOf(tree)), tree)); 
     queue.enqueue(diffs);
     setInputValue('');
@@ -65,6 +73,11 @@ export const BottomControls: React.FC = () => {
 
     const tree = getOrInitTree();
     const diffs = tree.search(val);
+
+    useUIStore.getState().setStepLog(
+      diffs.filter(d => d.type === 'ANNOTATION').map(d => d.annotation || '')
+    );
+
     queue.enqueue(diffs);
     setInputValue('');
   };

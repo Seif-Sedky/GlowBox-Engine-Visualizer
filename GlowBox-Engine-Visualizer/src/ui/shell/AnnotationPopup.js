@@ -1,15 +1,12 @@
-import { jsx as _jsx } from "react/jsx-runtime";
-import { useState } from 'react';
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import styles from './AnnotationPopup.module.css';
 import { useUIStore } from '../../store/ui.store';
 export const AnnotationPopup = () => {
     const annotationsOn = useUIStore(s => s.annotationsOn);
-    // Placeholder state for demonstration. 
-    // In reality, this would be updated when an ANNOTATION diff is processed by GSAP.
-    const [annotation, setAnnotation] = useState(null);
-    if (!annotationsOn || !annotation) {
+    const stepLog = useUIStore(s => s.stepLog);
+    if (!annotationsOn || stepLog.length === 0) {
         return null;
     }
-    return (_jsx("div", { className: `${styles.popupContainer} ${annotation ? styles.visible : ''}`, style: { left: annotation.x, top: annotation.y }, children: annotation.text }));
+    return (_jsxs("div", { className: `${styles.popupContainer} ${styles.visible}`, children: [_jsx("h3", { className: styles.title, children: "Operation Log" }), _jsx("ul", { className: styles.logList, children: stepLog.map((log, i) => (_jsxs("li", { className: styles.logItem, children: [_jsx("span", { className: styles.logBullet, children: "\u2022" }), log] }, i))) })] }));
 };
 //# sourceMappingURL=AnnotationPopup.js.map

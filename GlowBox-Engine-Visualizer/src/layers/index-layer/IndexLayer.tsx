@@ -6,6 +6,7 @@ import { Diff } from '../../engine/diff.types';
 import { useSessionStore } from '../../store/session.store';
 import { BPlusTree } from '../../engine/structures/bplus-tree';
 import { BPlusRenderer, LayoutNode, LayoutLink } from './bplus-renderer';
+import { useUIStore } from '../../store/ui.store';
 import styles from './IndexLayer.module.css';
 
 export const IndexLayer: React.FC = () => {
@@ -30,6 +31,7 @@ export const IndexLayer: React.FC = () => {
       onDiff: (diff: Diff) => {
         const tl = gsap.timeline();
         
+
         // --- Highlights ---
         if (diff.type === 'NODE_HIGHLIGHT') {
           const el = nodesLayerRef.current?.querySelector(`#node_${diff.payload.nodeId}`);

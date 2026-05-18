@@ -12,6 +12,7 @@ interface UIState {
   maxKeys: number        // 2, 4, 6, 8
   minKeys: number        // 1, 2, 3, 4
   indexType: IndexType
+  stepLog: string[]
 
   setScreen: (s: AppScreen) => void
   setTheme: (t: ThemeId) => void
@@ -20,6 +21,7 @@ interface UIState {
   setMaxKeys: (v: number) => void
   setMinKeys: (v: number) => void
   setIndexType: (i: IndexType) => void
+  setStepLog: (log: string[]) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -30,6 +32,7 @@ export const useUIStore = create<UIState>((set) => ({
   maxKeys:        4,
   minKeys:        2,
   indexType:      'bplus',
+  stepLog:        [],
 
   setScreen:  (screen)  => set({ screen }),
   setTheme:   (theme)   => set({ theme }),
@@ -39,4 +42,5 @@ export const useUIStore = create<UIState>((set) => ({
   setMaxKeys: (maxKeys) => set({ maxKeys }),
   setMinKeys: (minKeys) => set({ minKeys }),
   setIndexType: (indexType) => set({ indexType }),
+  setStepLog: (stepLog) => set({ stepLog }),
 }))
