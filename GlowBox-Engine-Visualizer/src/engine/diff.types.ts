@@ -15,7 +15,8 @@ export type DiffType =
 
 export interface Diff {
   type: DiffType;
-  payload: Record<string, unknown>;
+  payload?: any;
   annotation?: string; // shown only if annotationsOn === true
   durationHint?: number; // renderer scales by speed
+  snapshot?: any; // A clone of the tree at this step
 }

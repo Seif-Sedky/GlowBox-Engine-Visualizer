@@ -17,30 +17,57 @@ export class BPlusNode {
     this.children = [];
     this.nextLeaf = null;
   }
+
+  clone(): BPlusNode {
+    const node = new BPlusNode(this.isLeaf);
+    node.id = this.id;
+    node.keys = [...this.keys];
+    node.children = this.children.map(c => c.clone());
+    return node;
+  }
 }
 
 export class BPlusTree {
   root: BPlusNode;
   capacity: number; // Max keys per node
-  utilization: number; // Utilization percentage (e.g. 50, 75)
-  minKeys: number;
+  minKeys: number; // Min keys per node
 
-  constructor(maxKeys: number, utilization: number = 50) {
+  constructor(maxKeys: number, minKeys: number = 2) {
     this.capacity = maxKeys;
     if (this.capacity < 2) {
         this.capacity = 2; 
     }
-    this.utilization = utilization;
-    this.minKeys = Math.ceil(this.capacity * (this.utilization / 100));
-    // Ensure minKeys is at least 1 for functionality
+    this.minKeys = minKeys;
     if (this.minKeys < 1) this.minKeys = 1;
     this.root = new BPlusNode(true);
+  }
+
+  clone(): BPlusTree {
+    const tree = new BPlusTree(this.capacity, this.minKeys);
+    tree.root = this.root.clone();
+    return tree;
+  }
+
+  private createDiffArray(): Diff[] {
+    const tree = this;
+    const arr: Diff[] = [];
+    const originalPush = arr.push.bind(arr);
+    arr.push = function(...diffs: Diff[]) {
+      const structuralTypes = ['NODE_CREATE', 'NODE_DELETE', 'NODE_SPLIT', 'NODE_MERGE', 'KEY_INSERT', 'KEY_DELETE', 'LEAF_LINK_UPDATE'];
+      for (const diff of diffs) {
+        if (structuralTypes.includes(diff.type)) {
+          diff.snapshot = tree.clone();
+        }
+      }
+      return originalPush(...diffs);
+    };
+    return arr;
   }
 
   // --- Insertion ---
 
   insert(key: number): Diff[] {
-    const diffs: Diff[] = [];
+    const diffs = this.createDiffArray();
     diffs.push({
       type: 'ANNOTATION',
       annotation: `Inserting key ${key}`,
@@ -55,6 +82,23 @@ export class BPlusTree {
       newRoot.keys = [rootChildInfo.key];
       newRoot.children = [this.root, rootChildInfo.node];
       
+      this.root = newRoot;
+
+      diffs.push({
+        type: 'NODE_CREATE',
+        payload: { nodeId: rootChildInfo.node.id, isLeaf: rootChildInfo.node.isLeaf }
+      });
+      diffs.push({
+        type: 'NODE_SPLIT',
+        payload: { sourceId: newRoot.children[0].id, newId: rootChildInfo.node.id, isLeaf: rootChildInfo.node.isLeaf }
+      });
+      if (rootChildInfo.node.isLeaf) {
+        diffs.push({
+          type: 'LEAF_LINK_UPDATE',
+          payload: { sourceId: newRoot.children[0].id, targetId: rootChildInfo.node.id }
+        });
+      }
+
       diffs.push({
         type: 'NODE_CREATE',
         payload: { nodeId: newRoot.id, isLeaf: false }
@@ -62,10 +106,8 @@ export class BPlusTree {
       diffs.push({
         type: 'ANNOTATION',
         annotation: `Root overflowed. Created new root with key ${rootChildInfo.key}`,
-        payload: { key: rootChildInfo.key, oldRootId: this.root.id, newRootId: newRoot.id }
+        payload: { key: rootChildInfo.key, oldRootId: this.root.children[0].id, newRootId: newRoot.id }
       });
-
-      this.root = newRoot;
     }
 
     return diffs;
@@ -131,6 +173,21 @@ export class BPlusTree {
         node.children.splice(insertIndex + 1, 0, childSplit.node);
 
         diffs.push({
+          type: 'NODE_CREATE',
+          payload: { nodeId: childSplit.node.id, isLeaf: childSplit.node.isLeaf }
+        });
+        diffs.push({
+          type: 'NODE_SPLIT',
+          payload: { sourceId: node.children[childIndex].id, newId: childSplit.node.id, isLeaf: childSplit.node.isLeaf }
+        });
+        if (childSplit.node.isLeaf) {
+          diffs.push({
+            type: 'LEAF_LINK_UPDATE',
+            payload: { sourceId: node.children[childIndex].id, targetId: childSplit.node.id }
+          });
+        }
+
+        diffs.push({
           type: 'KEY_INSERT',
           payload: { nodeId: node.id, key: childSplit.key, index: insertIndex }
         });
@@ -158,19 +215,6 @@ export class BPlusTree {
     rightNode.nextLeaf = node.nextLeaf;
     node.nextLeaf = rightNode;
 
-    diffs.push({
-      type: 'NODE_CREATE',
-      payload: { nodeId: rightNode.id, isLeaf: true }
-    });
-    diffs.push({
-      type: 'NODE_SPLIT',
-      payload: { sourceId: node.id, newId: rightNode.id, isLeaf: true }
-    });
-    diffs.push({
-      type: 'LEAF_LINK_UPDATE',
-      payload: { sourceId: node.id, targetId: rightNode.id }
-    });
-
     // Copy up the median (which is the first key of the new right node)
     const copyUpKey = rightNode.keys[0];
     
@@ -197,15 +241,6 @@ export class BPlusTree {
     const rightNode = new BPlusNode(false);
     rightNode.keys = rightKeys;
     rightNode.children = rightChildren;
-
-    diffs.push({
-      type: 'NODE_CREATE',
-      payload: { nodeId: rightNode.id, isLeaf: false }
-    });
-    diffs.push({
-      type: 'NODE_SPLIT',
-      payload: { sourceId: node.id, newId: rightNode.id, isLeaf: false }
-    });
     
     diffs.push({
       type: 'ANNOTATION',
@@ -218,7 +253,7 @@ export class BPlusTree {
 
   // --- Deletion ---
   delete(key: number): Diff[] {
-    const diffs: Diff[] = [];
+    const diffs = this.createDiffArray();
     diffs.push({
       type: 'ANNOTATION',
       annotation: `Deleting key ${key}`,
@@ -370,7 +405,7 @@ export class BPlusTree {
 
   // --- Search ---
   search(key: number): Diff[] {
-    const diffs: Diff[] = [];
+    const diffs = this.createDiffArray();
     let curr = this.root;
 
     diffs.push({

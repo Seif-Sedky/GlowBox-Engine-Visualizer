@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import * as d3 from 'd3';
 import { LayerRegistry } from '../layer-registry';
 import { Diff } from '../../engine/diff.types';
 import { useSessionStore } from '../../store/session.store';
@@ -9,38 +10,17 @@ import styles from './IndexLayer.module.css';
 
 export const IndexLayer: React.FC = () => {
   const treeState = useSessionStore(s => s.currentTreeState) as BPlusTree | null;
-  const [nodes, setNodes] = useState<LayoutNode[]>([]);
-  const [links, setLinks] = useState<LayoutLink[]>([]);
-  
   const svgRef = useRef<SVGSVGElement>(null);
-  const nodeRefs = useRef<Record<string, SVGGElement | null>>({});
+  const linksLayerRef = useRef<SVGGElement>(null);
+  const nodesLayerRef = useRef<SVGGElement>(null);
 
+  // Clear canvas if tree is null (e.g. session cleared)
   useEffect(() => {
-    if (treeState) {
-      const renderer = new BPlusRenderer(treeState.capacity);
-      const layout = renderer.computeLayout(treeState);
-      
-      // Center the layout
-      // For simplicity, shift everything down and right
-      const shiftX = window.innerWidth / 2;
-      const shiftY = 100;
-
-      const shiftedNodes = layout.nodes.map(n => ({ ...n, x: n.x + shiftX, y: n.y + shiftY }));
-      const shiftedLinks = layout.links.map(l => ({
-        ...l,
-        sourceX: l.sourceX + shiftX,
-        sourceY: l.sourceY + shiftY,
-        targetX: l.targetX + shiftX,
-        targetY: l.targetY + shiftY,
-      }));
-
-      setNodes(shiftedNodes);
-      setLinks(shiftedLinks);
-    } else {
-      setNodes([]);
-      setLinks([]);
+    if (!treeState) {
+      if (linksLayerRef.current) d3.select(linksLayerRef.current).selectAll('*').remove();
+      if (nodesLayerRef.current) d3.select(nodesLayerRef.current).selectAll('*').remove();
     }
-  }, [treeState]); // In a fully diff-driven approach, this would update via diffs
+  }, [treeState]);
 
   useEffect(() => {
     LayerRegistry.register({
@@ -48,14 +28,11 @@ export const IndexLayer: React.FC = () => {
       label: 'B+ Tree',
       component: IndexLayer,
       onDiff: (diff: Diff) => {
-        // Here we handle the diffs and create GSAP tweens
-        console.log('[IndexLayer] Received Diff:', diff);
-        
         const tl = gsap.timeline();
         
+        // --- Highlights ---
         if (diff.type === 'NODE_HIGHLIGHT') {
-          const nodeId = `node_${diff.payload.nodeId}`;
-          const el = nodeRefs.current[nodeId];
+          const el = nodesLayerRef.current?.querySelector(`#node_${diff.payload.nodeId}`);
           if (el) {
             tl.to(el.querySelector('rect'), {
               stroke: 'var(--accent)',
@@ -67,16 +44,15 @@ export const IndexLayer: React.FC = () => {
         }
         
         if (diff.type === 'KEY_HIGHLIGHT') {
-           const nodeId = `node_${diff.payload.nodeId}`;
            const index = diff.payload.index as number;
-           const el = nodeRefs.current[nodeId];
+           const el = nodesLayerRef.current?.querySelector(`#node_${diff.payload.nodeId}`);
            if (el) {
              const keyText = el.querySelectorAll('text')[index];
              if (keyText) {
                 tl.to(keyText, {
                   fill: 'var(--accent)',
-                  scale: 1.2,
-                  duration: 0.2,
+                  scale: 1.3,
+                  duration: 0.3,
                   yoyo: true,
                   repeat: 1,
                   transformOrigin: '50% 50%'
@@ -85,8 +61,120 @@ export const IndexLayer: React.FC = () => {
            }
         }
         
-        // Structural diffs (CREATE, SPLIT) would trigger layout recomputation and x/y animation here.
-        // We will keep it simple for the initial implementation.
+        // --- Structural Changes via Snapshot ---
+        if (diff.snapshot) {
+           const renderer = new BPlusRenderer(diff.snapshot.capacity);
+           const newLayout = renderer.computeLayout(diff.snapshot);
+           
+           const shiftX = window.innerWidth / 2;
+           const shiftY = 100;
+           newLayout.nodes.forEach(n => { n.x += shiftX; n.y += shiftY; });
+           newLayout.links.forEach(l => { 
+             l.sourceX += shiftX; l.sourceY += shiftY; 
+             l.targetX += shiftX; l.targetY += shiftY; 
+           });
+
+           // 1. Links
+           const linkSelection = d3.select(linksLayerRef.current)
+             .selectAll<SVGPathElement, LayoutLink>('path')
+             .data(newLayout.links, d => `${d.sourceId}-${d.targetId}`);
+
+           const linksEnter = linkSelection.enter().append('path')
+             .attr('class', styles.linkPath)
+             .attr('d', d => `M ${d.sourceX} ${d.sourceY} L ${d.sourceX} ${d.sourceY}`)
+             .style('opacity', 0);
+             
+           const allLinks = linkSelection.merge(linksEnter).nodes();
+           if (allLinks.length > 0) {
+             tl.to(allLinks, {
+               attr: { 
+                 d: (i, el) => { 
+                    const d = d3.select(el).datum() as LayoutLink;
+                    return `M ${d.sourceX} ${d.sourceY} L ${d.targetX} ${d.targetY}`;
+                 } 
+               },
+               opacity: 1,
+               duration: 0.5,
+               ease: 'power2.out'
+             }, 0);
+           }
+           
+           linkSelection.exit().transition().duration(300).style('opacity', 0).remove();
+
+           // 2. Nodes
+           const nodeSelection = d3.select(nodesLayerRef.current)
+             .selectAll<SVGGElement, LayoutNode>('g.node-group')
+             .data(newLayout.nodes, d => d.id);
+             
+           const nodeEnter = nodeSelection.enter().append('g')
+             .attr('class', `node-group ${styles.nodeGroup}`)
+             .attr('id', d => d.id)
+             .style('opacity', 0);
+             
+           // Set initial position for new nodes to their target position but scaled down
+           nodeEnter.each(function(d) {
+             gsap.set(this, { x: d.x - d.width / 2, y: d.y - d.height / 2, scale: 0.5 });
+           });
+
+           const allNodesSel = nodeSelection.merge(nodeEnter);
+           
+           // Redraw inner contents
+           allNodesSel.each(function(d) {
+              const g = d3.select(this);
+              g.selectAll('*').remove();
+              g.append('rect')
+               .attr('class', styles.nodeRect)
+               .attr('width', d.width)
+               .attr('height', d.height);
+               
+              const keyWidth = d.width / Math.max(1, d.keys.length);
+              d.keys.forEach((key, idx) => {
+                 const xPos = idx * keyWidth;
+                 const keyGroup = g.append('g').attr('transform', `translate(${xPos}, 0)`);
+                 keyGroup.append('rect')
+                   .attr('class', styles.keyRect)
+                   .attr('width', keyWidth)
+                   .attr('height', d.height);
+                 keyGroup.append('text')
+                   .attr('class', styles.keyText)
+                   .attr('x', keyWidth / 2)
+                   .attr('y', d.height / 2)
+                   .text(key);
+              });
+           });
+
+           const allNodes = allNodesSel.nodes();
+           if (allNodes.length > 0) {
+             tl.to(allNodes, {
+               x: (i, el) => { 
+                 const d = d3.select(el).datum() as LayoutNode; 
+                 return d.x - d.width / 2; 
+               },
+               y: (i, el) => { 
+                 const d = d3.select(el).datum() as LayoutNode; 
+                 return d.y - d.height / 2; 
+               },
+               scale: 1,
+               opacity: 1,
+               duration: 0.5,
+               ease: 'power2.out'
+             }, 0);
+           }
+           
+           // Exit nodes
+           const exitNodes = nodeSelection.exit().nodes();
+           if (exitNodes.length > 0) {
+               tl.to(exitNodes, {
+                   scale: 0.5,
+                   opacity: 0,
+                   duration: 0.3,
+                   onComplete: () => {
+                       d3.selectAll(exitNodes).remove();
+                   }
+               }, 0);
+           }
+        }
+        
         return tl;
       }
     });
@@ -107,53 +195,8 @@ export const IndexLayer: React.FC = () => {
           </feMerge>
         </filter>
       </defs>
-
-      <g className="links">
-        {links.map((link, i) => (
-          <path
-            key={i}
-            className={styles.linkPath}
-            d={`M ${link.sourceX} ${link.sourceY} L ${link.targetX} ${link.targetY}`}
-          />
-        ))}
-      </g>
-
-      <g className="nodes">
-        {nodes.map(node => (
-          <g
-            key={node.id}
-            ref={el => nodeRefs.current[node.id] = el}
-            className={styles.nodeGroup}
-            transform={`translate(${node.x - node.width / 2}, ${node.y - node.height / 2})`}
-          >
-            <rect
-              className={styles.nodeRect}
-              width={node.width}
-              height={node.height}
-            />
-            {node.keys.map((key, idx) => {
-              const keyWidth = node.width / Math.max(1, node.keys.length);
-              const xPos = idx * keyWidth;
-              return (
-                <g key={idx} transform={`translate(${xPos}, 0)`}>
-                  <rect
-                    className={styles.keyRect}
-                    width={keyWidth}
-                    height={node.height}
-                  />
-                  <text
-                    className={styles.keyText}
-                    x={keyWidth / 2}
-                    y={node.height / 2}
-                  >
-                    {key}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-        ))}
-      </g>
+      <g ref={linksLayerRef} className="links" />
+      <g ref={nodesLayerRef} className="nodes" />
     </svg>
   );
 };

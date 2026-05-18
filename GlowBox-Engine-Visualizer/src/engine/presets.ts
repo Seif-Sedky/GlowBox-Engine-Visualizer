@@ -48,7 +48,7 @@ export const PRESETS: Record<ThemeId, PresetGenerator> = {
 
     // Then delete 15
     for (let i = 0; i < 15; i++) {
-      ops.push({ type: 'DELETE', key: shuffledKeys[i] });
+      ops.push({ type: 'DELETE', key: shuffledKeys[i]! });
     }
 
     return ops;

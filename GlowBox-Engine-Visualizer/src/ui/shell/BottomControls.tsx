@@ -13,7 +13,7 @@ const queue = new AnimationQueue(timelineController);
 
 export const BottomControls: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
-  const { theme, maxKeys, utilization, speed } = useUIStore();
+  const { theme, maxKeys, minKeys, speed } = useUIStore();
   const { currentTreeState, setTreeState } = useSessionStore();
   const activeTheme = THEMES[theme];
 
@@ -24,7 +24,7 @@ export const BottomControls: React.FC = () => {
 
   const getOrInitTree = () => {
     if (currentTreeState) return currentTreeState;
-    const newTree = new BPlusTree(maxKeys, utilization);
+    const newTree = new BPlusTree(maxKeys, minKeys);
     setTreeState(newTree);
     return newTree;
   };

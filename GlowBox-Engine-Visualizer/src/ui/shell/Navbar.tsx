@@ -11,8 +11,8 @@ function formatPageSize(b: number) {
 
 export function Navbar() {
   const {
-    theme, speed, annotationsOn, maxKeys, utilization,
-    setSpeed, toggleAnnotations, setMaxKeys, setUtilization, setScreen,
+    theme, speed, annotationsOn, maxKeys, minKeys,
+    setSpeed, toggleAnnotations, setMaxKeys, setMinKeys, setScreen,
   } = useUIStore()
 
   const activeTheme = THEMES[theme]
@@ -29,7 +29,7 @@ export function Navbar() {
         <span className={styles.logoText}>GlowBox</span>
       </button>
 
-      {/* ── Center: Max Keys & Utilization ── */}
+      {/* ── Center: Max Keys & Min Keys ── */}
       <div className={styles.center} style={{ gap: '2rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span className="label" style={{ color: activeTheme.accent }}>Max Keys</span>
@@ -56,24 +56,24 @@ export function Navbar() {
         </div>
         
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span className="label" style={{ color: activeTheme.accent }}>Utilization</span>
+          <span className="label" style={{ color: activeTheme.accent }}>Min Keys</span>
           <div className={styles.pageSizePills}>
-            {[50, 75].map((u) => (
+            {[1, 2, 3, 4].map((u) => (
               <button
                 key={u}
-                className={`${styles.pill} ${utilization === u ? styles.pillActive : ''}`}
-                style={utilization === u ? {
+                className={`${styles.pill} ${minKeys === u ? styles.pillActive : ''}`}
+                style={minKeys === u ? {
                   background: activeTheme.accentGlow,
                   borderColor: activeTheme.accent,
                   color: activeTheme.accent,
                   boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
                 } : {}}
                 onClick={() => {
-                  setUtilization(u);
+                  setMinKeys(u);
                   useSessionStore.getState().clearSession();
                 }}
               >
-                {u}%
+                {u}
               </button>
             ))}
           </div>

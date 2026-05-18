@@ -10,7 +10,7 @@ interface UIState {
   speed: number          // 0.25 – 3.0  (GSAP timeScale multiplier)
   annotationsOn: boolean
   maxKeys: number        // 2, 4, 6, 8
-  utilization: number    // 50, 75
+  minKeys: number        // 1, 2, 3, 4
   indexType: IndexType
 
   setScreen: (s: AppScreen) => void
@@ -18,7 +18,7 @@ interface UIState {
   setSpeed: (v: number) => void
   toggleAnnotations: () => void
   setMaxKeys: (v: number) => void
-  setUtilization: (v: number) => void
+  setMinKeys: (v: number) => void
   setIndexType: (i: IndexType) => void
 }
 
@@ -28,7 +28,7 @@ export const useUIStore = create<UIState>((set) => ({
   speed:          1,
   annotationsOn:  false,
   maxKeys:        4,
-  utilization:    50,
+  minKeys:        2,
   indexType:      'bplus',
 
   setScreen:  (screen)  => set({ screen }),
@@ -37,6 +37,6 @@ export const useUIStore = create<UIState>((set) => ({
   toggleAnnotations: () =>
     set((s) => ({ annotationsOn: !s.annotationsOn })),
   setMaxKeys: (maxKeys) => set({ maxKeys }),
-  setUtilization: (utilization) => set({ utilization }),
+  setMinKeys: (minKeys) => set({ minKeys }),
   setIndexType: (indexType) => set({ indexType }),
 }))

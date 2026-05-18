@@ -158,11 +158,11 @@ export function Landing() {
             <button className={styles.closeBtn} onClick={() => setShowAbout(false)}>✕</button>
             <h2 className={styles.modalTitle}>About GlowBox</h2>
             <p className={styles.modalText}>
-              GlowBox engine is my second baby project after NeoJackaroo, it is one that I am deeply passionate about, and intending to expand in the future, it includes a very small subset things that really facsinated me about one of the most sophisticated yet elegant softwares known to man, AKA database engines.
+              GlowBox engine is my second baby project after NeoJackaroo, it is one that I am deeply passionate about, and intend to expand in the future, it includes a small subset of things that really fascinated me about one of the most sophisticated yet elegant softwares known to man: database engines.
             </p>
-            
+
             <div className={styles.modalDivider} />
-            
+
             <h3 className={styles.modalSubtitle}>Contact & Personal Profile</h3>
             <ul className={styles.modalLinks}>
               <li><span className={styles.modalLabel}>Name:</span> Seif Alaa</li>

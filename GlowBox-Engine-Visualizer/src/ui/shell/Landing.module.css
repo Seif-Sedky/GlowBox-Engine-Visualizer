@@ -208,6 +208,7 @@
   animation:
     fadeUp 0.8s var(--ease-out-expo) 0.15s both,
     shimmer 6s linear infinite;
+  font-size: 100px;
 }
 
 .subtitle {
