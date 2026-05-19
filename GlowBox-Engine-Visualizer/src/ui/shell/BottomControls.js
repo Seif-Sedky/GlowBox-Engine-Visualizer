@@ -5,6 +5,7 @@ import { useUIStore } from '../../store/ui.store';
 import { useSessionStore } from '../../store/session.store';
 import { THEMES } from '../../store/theme.types';
 import { BPlusTree } from '../../engine/structures/bplus-tree';
+import { ExtendibleHash } from '../../engine/structures/extendible-hash';
 import { AnimationQueue } from '../../animation/queue';
 import { TimelineController } from '../../animation/timeline-controller';
 // Create a singleton timeline controller and queue for now
@@ -12,7 +13,7 @@ const timelineController = new TimelineController();
 const queue = new AnimationQueue(timelineController);
 export const BottomControls = () => {
     const [inputValue, setInputValue] = useState('');
-    const { theme, maxKeys, minKeys, speed } = useUIStore();
+    const { theme, maxKeys, minKeys, speed, indexType } = useUIStore();
     const { currentTreeState, setTreeState } = useSessionStore();
     const activeTheme = THEMES[theme];
     // Update speed when it changes
@@ -22,7 +23,13 @@ export const BottomControls = () => {
     const getOrInitTree = () => {
         if (currentTreeState)
             return currentTreeState;
-        const newTree = new BPlusTree(maxKeys, minKeys);
+        let newTree;
+        if (indexType === 'hash') {
+            newTree = new ExtendibleHash(maxKeys);
+        }
+        else {
+            newTree = new BPlusTree(maxKeys, minKeys);
+        }
         setTreeState(newTree);
         return newTree;
     };

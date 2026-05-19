@@ -4,6 +4,7 @@ import { useUIStore } from '../../store/ui.store';
 import { useSessionStore } from '../../store/session.store';
 import { THEMES } from '../../store/theme.types';
 import { BPlusTree } from '../../engine/structures/bplus-tree';
+import { ExtendibleHash } from '../../engine/structures/extendible-hash';
 import { AnimationQueue } from '../../animation/queue';
 import { TimelineController } from '../../animation/timeline-controller';
 
@@ -13,7 +14,7 @@ const queue = new AnimationQueue(timelineController);
 
 export const BottomControls: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
-  const { theme, maxKeys, minKeys, speed } = useUIStore();
+  const { theme, maxKeys, minKeys, speed, indexType } = useUIStore();
   const { currentTreeState, setTreeState } = useSessionStore();
   const activeTheme = THEMES[theme];
 
@@ -24,7 +25,12 @@ export const BottomControls: React.FC = () => {
 
   const getOrInitTree = () => {
     if (currentTreeState) return currentTreeState;
-    const newTree = new BPlusTree(maxKeys, minKeys);
+    let newTree;
+    if (indexType === 'hash') {
+      newTree = new ExtendibleHash(maxKeys);
+    } else {
+      newTree = new BPlusTree(maxKeys, minKeys);
+    }
     setTreeState(newTree);
     return newTree;
   };

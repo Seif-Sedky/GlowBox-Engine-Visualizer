@@ -11,7 +11,7 @@ function formatPageSize(b: number) {
 
 export function Navbar() {
   const {
-    theme, speed, annotationsOn, maxKeys, minKeys,
+    theme, speed, annotationsOn, maxKeys, minKeys, indexType,
     setSpeed, toggleAnnotations, setMaxKeys, setMinKeys, setScreen,
   } = useUIStore()
 
@@ -55,29 +55,31 @@ export function Navbar() {
           </div>
         </div>
         
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span className="label" style={{ color: activeTheme.accent }}>Min Keys</span>
-          <div className={styles.pageSizePills}>
-            {[1, 2, 3, 4].map((u) => (
-              <button
-                key={u}
-                className={`${styles.pill} ${minKeys === u ? styles.pillActive : ''}`}
-                style={minKeys === u ? {
-                  background: activeTheme.accentGlow,
-                  borderColor: activeTheme.accent,
-                  color: activeTheme.accent,
-                  boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
-                } : {}}
-                onClick={() => {
-                  setMinKeys(u);
-                  useSessionStore.getState().clearSession();
-                }}
-              >
-                {u}
-              </button>
-            ))}
+        {indexType !== 'hash' && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span className="label" style={{ color: activeTheme.accent }}>Min Keys</span>
+            <div className={styles.pageSizePills}>
+              {[1, 2, 3, 4].map((u) => (
+                <button
+                  key={u}
+                  className={`${styles.pill} ${minKeys === u ? styles.pillActive : ''}`}
+                  style={minKeys === u ? {
+                    background: activeTheme.accentGlow,
+                    borderColor: activeTheme.accent,
+                    color: activeTheme.accent,
+                    boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
+                  } : {}}
+                  onClick={() => {
+                    setMinKeys(u);
+                    useSessionStore.getState().clearSession();
+                  }}
+                >
+                  {u}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── Right: Controls ── */}

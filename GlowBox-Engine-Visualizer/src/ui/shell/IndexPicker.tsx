@@ -21,7 +21,7 @@ const INDICES: {
     title: 'Extendible Hash',
     desc: 'A dynamic hashing scheme that allows the hash table size to grow and shrink gracefully as records are inserted and deleted.',
     img: '/ext_hash_preview.png',
-    available: false, // Coming soon
+    available: true,
   },
   {
     id: 'rtree',

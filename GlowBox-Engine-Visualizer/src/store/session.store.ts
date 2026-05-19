@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { BPlusTree } from '../engine/structures/bplus-tree';
+import { ExtendibleHash } from '../engine/structures/extendible-hash';
+
+export type TreeState = BPlusTree | ExtendibleHash;
 
 interface SessionState {
   operationHistory: string[];
-  currentTreeState: BPlusTree | null;
+  currentTreeState: TreeState | null;
   
   addOperation: (op: string) => void;
-  setTreeState: (tree: BPlusTree) => void;
+  setTreeState: (tree: TreeState) => void;
   clearSession: () => void;
 }
 

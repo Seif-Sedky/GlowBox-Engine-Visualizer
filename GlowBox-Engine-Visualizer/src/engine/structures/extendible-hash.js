@@ -1,0 +1,257 @@
+let nextBucketId = 1;
+export class HashBucket {
+    constructor(localDepth) {
+        this.id = nextBucketId++;
+        this.localDepth = localDepth;
+        this.keys = [];
+    }
+    clone() {
+        const bucket = new HashBucket(this.localDepth);
+        bucket.id = this.id;
+        bucket.keys = [...this.keys];
+        return bucket;
+    }
+}
+export class ExtendibleHash {
+    constructor(capacity) {
+        this.capacity = capacity;
+        if (this.capacity < 1)
+            this.capacity = 1;
+        this.globalDepth = 1;
+        // Initialize directory with 2^globalDepth = 2 buckets
+        const bucket0 = new HashBucket(1);
+        const bucket1 = new HashBucket(1);
+        this.directory = [bucket0, bucket1];
+    }
+    clone() {
+        const hash = new ExtendibleHash(this.capacity);
+        hash.globalDepth = this.globalDepth;
+        // Deep copy unique buckets
+        const bucketMap = new Map();
+        const newDirectory = [];
+        for (const b of this.directory) {
+            if (!bucketMap.has(b.id)) {
+                bucketMap.set(b.id, b.clone());
+            }
+            newDirectory.push(bucketMap.get(b.id));
+        }
+        hash.directory = newDirectory;
+        return hash;
+    }
+    createDiffArray() {
+        const hash = this;
+        const arr = [];
+        const originalPush = arr.push.bind(arr);
+        arr.push = function (...diffs) {
+            const structuralTypes = ['NODE_CREATE', 'NODE_DELETE', 'NODE_SPLIT', 'KEY_INSERT', 'KEY_DELETE', 'BUCKET_SPLIT', 'DIRECTORY_EXPAND', 'POINTER_REDIRECT'];
+            for (const diff of diffs) {
+                if (structuralTypes.includes(diff.type)) {
+                    diff.snapshot = hash.clone();
+                }
+            }
+            return originalPush(...diffs);
+        };
+        return arr;
+    }
+    // Uses LSB mapping
+    getHash(key, depth) {
+        if (depth === 0)
+            return 0;
+        const mask = (1 << depth) - 1;
+        return key & mask;
+    }
+    insert(key) {
+        const diffs = this.createDiffArray();
+        diffs.push({
+            type: 'ANNOTATION',
+            annotation: `Inserting key ${key}`,
+            payload: { key }
+        });
+        this._insert(key, diffs);
+        return diffs;
+    }
+    _insert(key, diffs) {
+        let index = this.getHash(key, this.globalDepth);
+        let bucket = this.directory[index];
+        diffs.push({
+            type: 'NODE_HIGHLIGHT',
+            payload: { nodeId: bucket.id }
+        });
+        diffs.push({
+            type: 'ANNOTATION',
+            annotation: `Key ${key} hashes to index ${index} (LSB=${index.toString(2).padStart(this.globalDepth, '0')})`,
+            payload: { key, index, globalDepth: this.globalDepth }
+        });
+        // Check if key already exists (optional, but good practice, though user mentioned duplicate support earlier, let's keep it simple, just add it or maybe prevent duplicates if needed. We'll just add it).
+        bucket.keys.push(key);
+        diffs.push({
+            type: 'KEY_INSERT',
+            payload: { nodeId: bucket.id, key, index: bucket.keys.length - 1 }
+        });
+        // Handle Overflow
+        while (bucket.keys.length > this.capacity) {
+            diffs.push({
+                type: 'ANNOTATION',
+                annotation: `Bucket ${bucket.id} overflowed (capacity ${this.capacity})`,
+                payload: { nodeId: bucket.id }
+            });
+            if (bucket.localDepth === this.globalDepth) {
+                // Expand directory
+                const oldSize = 1 << this.globalDepth;
+                this.globalDepth++;
+                const newSize = 1 << this.globalDepth;
+                for (let i = 0; i < oldSize; i++) {
+                    this.directory[i + oldSize] = this.directory[i];
+                }
+                diffs.push({
+                    type: 'DIRECTORY_EXPAND',
+                    payload: { oldDepth: this.globalDepth - 1, newDepth: this.globalDepth }
+                });
+                diffs.push({
+                    type: 'ANNOTATION',
+                    annotation: `Doubled directory size to ${newSize} (global depth ${this.globalDepth})`
+                });
+            }
+            // Split bucket
+            const newBucket = new HashBucket(bucket.localDepth + 1);
+            bucket.localDepth++;
+            const allKeys = [...bucket.keys];
+            bucket.keys = [];
+            diffs.push({
+                type: 'NODE_CREATE',
+                payload: { nodeId: newBucket.id, isBucket: true }
+            });
+            // Re-distribute keys
+            for (const k of allKeys) {
+                const hashVal = this.getHash(k, bucket.localDepth);
+                // The bucket index was previously identified by the lower (localDepth - 1) bits.
+                // The new bit is at position (localDepth - 1).
+                // Let's find the suffix for the new bucket. We can just check the bit at (localDepth - 1).
+                const bit = (k >> (bucket.localDepth - 1)) & 1;
+                // We need to know which bit corresponds to the original bucket vs the new bucket.
+                // Let's determine this by looking at the original index we used to reach this bucket, 
+                // or just by re-evaluating the hash for the original index.
+                // Wait, 'index' might not be the base index of the bucket anymore if we expanded.
+                // The original bucket corresponds to bit === 0 for the newly considered bit? 
+                // Or we can just assign based on the new hash suffix.
+                // Let's find the base suffix of the original bucket. 
+                // Actually, since we only split a bucket that was reached, we can just look at the keys.
+                // A safer way: we partition keys based on `this.getHash(k, bucket.localDepth)`.
+                // Let's pick one suffix as the '0' bit and one as the '1' bit.
+                // We know that `this.getHash(k, bucket.localDepth - 1)` is the same for all keys in this bucket.
+                const baseSuffix = this.getHash(allKeys[0], bucket.localDepth - 1);
+                const hash0 = baseSuffix; // the one with 0 at the new MSB
+                const hash1 = baseSuffix | (1 << (bucket.localDepth - 1)); // the one with 1 at the new MSB
+                if (this.getHash(k, bucket.localDepth) === hash0) {
+                    bucket.keys.push(k);
+                }
+                else {
+                    newBucket.keys.push(k);
+                }
+            }
+            diffs.push({
+                type: 'BUCKET_SPLIT',
+                payload: { sourceId: bucket.id, newId: newBucket.id, localDepth: bucket.localDepth }
+            });
+            // Update directory pointers
+            const baseSuffix = this.getHash(allKeys[0], bucket.localDepth - 1);
+            const hash0 = baseSuffix;
+            const hash1 = baseSuffix | (1 << (bucket.localDepth - 1));
+            for (let i = 0; i < (1 << this.globalDepth); i++) {
+                if (this.directory[i] === bucket) {
+                    if (this.getHash(i, bucket.localDepth) === hash1) {
+                        this.directory[i] = newBucket;
+                        diffs.push({
+                            type: 'POINTER_REDIRECT',
+                            payload: { directoryIndex: i, targetId: newBucket.id }
+                        });
+                    }
+                }
+            }
+            diffs.push({
+                type: 'ANNOTATION',
+                annotation: `Split bucket into ${bucket.id} and ${newBucket.id} (local depth ${bucket.localDepth})`
+            });
+            // After splitting, we need to check if the current key is still in a bucket that overflows.
+            // Since `bucket` was overflowing, and we redistributed, one of `bucket` or `newBucket` might STILL overflow.
+            if (bucket.keys.length > this.capacity) {
+                // bucket still overflows. Loop will continue because bucket is still the focus.
+                // Note: we need to ensure the next iteration operates on the correct bucket if it overflows.
+                // Actually, the loop condition `bucket.keys.length > this.capacity` only checks `bucket`.
+                // What if `newBucket` overflows?
+            }
+            // So let's re-evaluate which bucket our newly inserted `key` went to.
+            // And we should check that bucket for overflow.
+            const newIndex = this.getHash(key, this.globalDepth);
+            bucket = this.directory[newIndex];
+            // The while loop will now check `bucket.keys.length > this.capacity` correctly.
+        }
+    }
+    delete(key) {
+        const diffs = this.createDiffArray();
+        diffs.push({
+            type: 'ANNOTATION',
+            annotation: `Deleting key ${key}`,
+            payload: { key }
+        });
+        const index = this.getHash(key, this.globalDepth);
+        const bucket = this.directory[index];
+        diffs.push({
+            type: 'NODE_HIGHLIGHT',
+            payload: { nodeId: bucket.id }
+        });
+        const keyIndex = bucket.keys.indexOf(key);
+        if (keyIndex !== -1) {
+            bucket.keys.splice(keyIndex, 1);
+            diffs.push({
+                type: 'KEY_DELETE',
+                payload: { nodeId: bucket.id, key, index: keyIndex }
+            });
+            diffs.push({
+                type: 'ANNOTATION',
+                annotation: `Deleted key ${key} from bucket ${bucket.id}`
+            });
+            // Extendible hash usually merges buckets when empty, but we can skip merge for simplicity unless required.
+        }
+        else {
+            diffs.push({
+                type: 'ANNOTATION',
+                annotation: `Key ${key} not found`
+            });
+        }
+        return diffs;
+    }
+    search(key) {
+        const diffs = this.createDiffArray();
+        diffs.push({
+            type: 'ANNOTATION',
+            annotation: `Searching for key ${key}`,
+            payload: { key }
+        });
+        const index = this.getHash(key, this.globalDepth);
+        const bucket = this.directory[index];
+        diffs.push({
+            type: 'NODE_HIGHLIGHT',
+            payload: { nodeId: bucket.id }
+        });
+        const keyIndex = bucket.keys.indexOf(key);
+        if (keyIndex !== -1) {
+            diffs.push({
+                type: 'KEY_HIGHLIGHT',
+                payload: { nodeId: bucket.id, index: keyIndex }
+            });
+            diffs.push({
+                type: 'ANNOTATION',
+                annotation: `Found key ${key} at index ${index}`
+            });
+        }
+        else {
+            diffs.push({
+                type: 'ANNOTATION',
+                annotation: `Key ${key} not found`
+            });
+        }
+        return diffs;
+    }
+}
+//# sourceMappingURL=extendible-hash.js.map
