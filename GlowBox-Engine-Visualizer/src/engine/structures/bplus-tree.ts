@@ -1,5 +1,4 @@
-import { Diff, DiffType } from '../diff.types';
-import { calculateNodeCapacity } from '../page-config';
+import { Diff } from '../diff.types';
 
 let nextNodeId = 1;
 

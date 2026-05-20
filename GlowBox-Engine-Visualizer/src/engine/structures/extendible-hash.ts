@@ -1,4 +1,4 @@
-import { Diff, DiffType } from '../diff.types';
+import { Diff } from '../diff.types';
 
 let nextBucketId = 1;
 

@@ -6,7 +6,6 @@ import { Diff } from '../../engine/diff.types';
 import { useSessionStore } from '../../store/session.store';
 import { BPlusTree } from '../../engine/structures/bplus-tree';
 import { BPlusRenderer, LayoutNode, LayoutLink } from './bplus-renderer';
-import { useUIStore } from '../../store/ui.store';
 import styles from './IndexLayer.module.css';
 
 export const IndexLayer: React.FC = () => {
@@ -90,7 +89,7 @@ export const IndexLayer: React.FC = () => {
            if (allLinks.length > 0) {
              tl.to(allLinks, {
                attr: { 
-                 d: (i, el) => { 
+                 d: (_, el) => { 
                     const d = d3.select(el).datum() as LayoutLink;
                     return `M ${d.sourceX} ${d.sourceY} L ${d.targetX} ${d.targetY}`;
                  } 
@@ -148,11 +147,11 @@ export const IndexLayer: React.FC = () => {
            const allNodes = allNodesSel.nodes();
            if (allNodes.length > 0) {
              tl.to(allNodes, {
-               x: (i, el) => { 
+               x: (_, el) => { 
                  const d = d3.select(el).datum() as LayoutNode; 
                  return d.x - d.width / 2; 
                },
-               y: (i, el) => { 
+               y: (_, el) => { 
                  const d = d3.select(el).datum() as LayoutNode; 
                  return d.y - d.height / 2; 
                },

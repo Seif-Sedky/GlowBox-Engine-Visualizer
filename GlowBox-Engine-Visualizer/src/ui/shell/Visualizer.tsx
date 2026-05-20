@@ -1,5 +1,4 @@
 import { useUIStore } from '@store/ui.store'
-import { THEMES } from '@store/theme.types'
 import { Navbar } from './Navbar'
 import { BottomControls } from './BottomControls'
 import { AnnotationPopup } from './AnnotationPopup'

@@ -3,11 +3,6 @@ import { THEMES } from '@store/theme.types'
 import { useSessionStore } from '@store/session.store'
 import styles from './Navbar.module.css'
 
-const PAGE_SIZES = [1024, 2048, 4096, 8192, 16384]
-
-function formatPageSize(b: number) {
-  return b >= 1024 ? `${b / 1024} KB` : `${b} B`
-}
 
 export function Navbar() {
   const {

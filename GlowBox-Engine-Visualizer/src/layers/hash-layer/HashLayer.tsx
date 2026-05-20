@@ -91,7 +91,7 @@ export const HashLayer: React.FC = () => {
            if (allLinks.length > 0) {
              tl.to(allLinks, {
                attr: { 
-                 d: (i, el) => { 
+                 d: (_, el) => { 
                     const d = d3.select(el).datum() as LayoutHashLink;
                     return `M ${d.sourceX} ${d.sourceY} L ${d.targetX} ${d.targetY}`;
                  } 
@@ -138,8 +138,8 @@ export const HashLayer: React.FC = () => {
            const allDirNodes = allDirSel.nodes();
            if (allDirNodes.length > 0) {
              tl.to(allDirNodes, {
-               x: (i, el) => (d3.select(el).datum() as LayoutDirectoryCell).x,
-               y: (i, el) => (d3.select(el).datum() as LayoutDirectoryCell).y,
+               x: (_, el) => (d3.select(el).datum() as LayoutDirectoryCell).x,
+               y: (_, el) => (d3.select(el).datum() as LayoutDirectoryCell).y,
                scale: 1,
                opacity: 1,
                duration: 0.5,
@@ -219,8 +219,8 @@ export const HashLayer: React.FC = () => {
            const allBucketNodes = allBucketsSel.nodes();
            if (allBucketNodes.length > 0) {
              tl.to(allBucketNodes, {
-               x: (i, el) => (d3.select(el).datum() as LayoutBucket).x,
-               y: (i, el) => (d3.select(el).datum() as LayoutBucket).y,
+               x: (_, el) => (d3.select(el).datum() as LayoutBucket).x,
+               y: (_, el) => (d3.select(el).datum() as LayoutBucket).y,
                scale: 1,
                opacity: 1,
                duration: 0.5,

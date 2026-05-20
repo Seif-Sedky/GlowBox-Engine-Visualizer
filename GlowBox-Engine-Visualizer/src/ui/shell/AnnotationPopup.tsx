@@ -61,25 +61,27 @@ export const AnnotationPopup: React.FC = () => {
 
   return (
     <div className={`${styles.popupContainer} ${styles.visible}`}>
-      {/* Hash Info Badges — rendered prominently at the top */}
-      {hashEntries.map((entry, i) => (
-        <HashBadge key={`hash-${i}`} entry={entry} />
-      ))}
+      <div className={styles.scrollArea}>
+        {/* Hash Info Badges — rendered prominently at the top */}
+        {hashEntries.map((entry, i) => (
+          <HashBadge key={`hash-${i}`} entry={entry} />
+        ))}
 
-      {/* Regular text annotations */}
-      {textEntries.length > 0 && (
-        <>
-          <h3 className={styles.title}>Operation Log</h3>
-          <ul className={styles.logList}>
-            {textEntries.map((log, i) => (
-              <li key={i} className={styles.logItem}>
-                <span className={styles.logBullet}>•</span>
-                {log.message}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+        {/* Regular text annotations */}
+        {textEntries.length > 0 && (
+          <>
+            <h3 className={styles.title}>Operation Log</h3>
+            <ul className={styles.logList}>
+              {textEntries.map((log, i) => (
+                <li key={i} className={styles.logItem}>
+                  <span className={styles.logBullet}>•</span>
+                  {log.message}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
     </div>
   );
 };

@@ -3,20 +3,23 @@
   top: 100px;
   right: var(--space-4);
   width: 340px;
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
   pointer-events: all;
   z-index: 100;
   background: var(--glass-fill);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  padding: var(--space-4);
   font-family: var(--font-body);
   color: var(--text-primary);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(12px);
   opacity: 0;
   transition: opacity 0.3s ease-out;
+}
+
+.scrollArea {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding: var(--space-4);
 }
 
 .popupContainer.visible {

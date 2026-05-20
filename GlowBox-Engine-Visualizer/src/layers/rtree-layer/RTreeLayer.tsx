@@ -106,7 +106,7 @@ export const RTreeLayer: React.FC = () => {
            if (allLinks.length > 0) {
              tl.to(allLinks, {
                attr: { 
-                 d: (i, el) => { 
+                 d: (_, el) => { 
                     const d = d3.select(el).datum() as LayoutLink;
                     return `M ${d.sourceX} ${d.sourceY} L ${d.targetX} ${d.targetY}`;
                  } 
@@ -163,11 +163,11 @@ export const RTreeLayer: React.FC = () => {
            const allNodes = allNodesSel.nodes();
            if (allNodes.length > 0) {
              tl.to(allNodes, {
-               x: (i, el) => { 
+               x: (_, el) => { 
                  const d = d3.select(el).datum() as LayoutNode; 
                  return d.x - d.width / 2; 
                },
-               y: (i, el) => { 
+               y: (_, el) => { 
                  const d = d3.select(el).datum() as LayoutNode; 
                  return d.y - d.height / 2; 
                },
