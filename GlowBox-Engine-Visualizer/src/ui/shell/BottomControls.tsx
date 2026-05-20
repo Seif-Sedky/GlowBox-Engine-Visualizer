@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './BottomControls.module.css';
-import { useUIStore } from '../../store/ui.store';
+import { useUIStore, StepLogEntry } from '../../store/ui.store';
 import { useSessionStore } from '../../store/session.store';
 import { THEMES } from '../../store/theme.types';
 import { BPlusTree } from '../../engine/structures/bplus-tree';
@@ -11,6 +11,24 @@ import { TimelineController } from '../../animation/timeline-controller';
 // Create a singleton timeline controller and queue for now
 const timelineController = new TimelineController();
 const queue = new AnimationQueue(timelineController);
+
+function diffsToStepLog(diffs: import('../../engine/diff.types').Diff[]): StepLogEntry[] {
+  return diffs
+    .filter(d => d.type === 'ANNOTATION')
+    .map(d => {
+      if (d.payload?.isHashInfo) {
+        return {
+          type: 'hash-info' as const,
+          key: d.payload.key,
+          binaryKey: d.payload.binaryKey,
+          lsbBits: d.payload.lsbBits,
+          bucketIndex: d.payload.bucketIndex,
+          globalDepth: d.payload.globalDepth,
+        };
+      }
+      return { type: 'text' as const, message: d.annotation || '' };
+    });
+}
 
 export const BottomControls: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
@@ -43,9 +61,7 @@ export const BottomControls: React.FC = () => {
     const tree = getOrInitTree();
     const diffs = tree.insert(val);
     
-    useUIStore.getState().setStepLog(
-      diffs.filter(d => d.type === 'ANNOTATION').map(d => d.annotation || '')
-    );
+    useUIStore.getState().setStepLog(diffsToStepLog(diffs));
     
     // Trigger re-render to update D3 layout in IndexLayer immediately (FLIP approach or direct)
     // Note: In a true diff approach, we'd wait for queue. Here we just update React.
@@ -63,9 +79,7 @@ export const BottomControls: React.FC = () => {
     const tree = getOrInitTree();
     const diffs = tree.delete(val);
     
-    useUIStore.getState().setStepLog(
-      diffs.filter(d => d.type === 'ANNOTATION').map(d => d.annotation || '')
-    );
+    useUIStore.getState().setStepLog(diffsToStepLog(diffs));
 
     setTreeState(Object.assign(Object.create(Object.getPrototypeOf(tree)), tree)); 
     queue.enqueue(diffs);
@@ -80,9 +94,7 @@ export const BottomControls: React.FC = () => {
     const tree = getOrInitTree();
     const diffs = tree.search(val);
 
-    useUIStore.getState().setStepLog(
-      diffs.filter(d => d.type === 'ANNOTATION').map(d => d.annotation || '')
-    );
+    useUIStore.getState().setStepLog(diffsToStepLog(diffs));
 
     queue.enqueue(diffs);
     setInputValue('');

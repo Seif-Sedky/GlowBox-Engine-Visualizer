@@ -1,8 +1,25 @@
 import { create } from 'zustand'
 import type { ThemeId } from './theme.types'
+import { useSessionStore } from './session.store'
 
 export type AppScreen = 'landing' | 'index-picker' | 'visualizer'
 export type IndexType = 'bplus' | 'hash' | 'rtree'
+
+export interface HashInfoEntry {
+  type: 'hash-info'
+  key: number
+  binaryKey: string
+  lsbBits: string
+  bucketIndex: number
+  globalDepth: number
+}
+
+export interface TextEntry {
+  type: 'text'
+  message: string
+}
+
+export type StepLogEntry = HashInfoEntry | TextEntry
 
 interface UIState {
   screen: AppScreen
@@ -12,7 +29,7 @@ interface UIState {
   maxKeys: number        // 2, 4, 6, 8
   minKeys: number        // 1, 2, 3, 4
   indexType: IndexType
-  stepLog: string[]
+  stepLog: StepLogEntry[]
 
   setScreen: (s: AppScreen) => void
   setTheme: (t: ThemeId) => void
@@ -21,7 +38,7 @@ interface UIState {
   setMaxKeys: (v: number) => void
   setMinKeys: (v: number) => void
   setIndexType: (i: IndexType) => void
-  setStepLog: (log: string[]) => void
+  setStepLog: (log: StepLogEntry[]) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -34,13 +51,24 @@ export const useUIStore = create<UIState>((set) => ({
   indexType:      'bplus',
   stepLog:        [],
 
-  setScreen:  (screen)  => set({ screen }),
+  setScreen:  (screen) => {
+    // Auto-clear session when leaving the visualizer
+    const currentScreen = useUIStore.getState().screen;
+    if (currentScreen === 'visualizer' && screen !== 'visualizer') {
+      useSessionStore.getState().clearSession();
+      set({ stepLog: [] });
+    }
+    set({ screen });
+  },
   setTheme:   (theme)   => set({ theme }),
   setSpeed:   (speed)   => set({ speed }),
   toggleAnnotations: () =>
     set((s) => ({ annotationsOn: !s.annotationsOn })),
   setMaxKeys: (maxKeys) => set({ maxKeys }),
   setMinKeys: (minKeys) => set({ minKeys }),
-  setIndexType: (indexType) => set({ indexType }),
+  setIndexType: (indexType) => {
+    useSessionStore.getState().clearSession();
+    set({ indexType, stepLog: [] });
+  },
   setStepLog: (stepLog) => set({ stepLog }),
 }))

@@ -8,7 +8,7 @@
     "strict": false,
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
-    "sourceMap": true,
+    "noEmit": true,
     "types": ["node"],
     "baseUrl": ".",
     "paths": {

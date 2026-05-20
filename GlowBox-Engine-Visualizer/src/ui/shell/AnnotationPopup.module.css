@@ -2,7 +2,7 @@
   position: absolute;
   top: 100px;
   right: var(--space-4);
-  width: 320px;
+  width: 340px;
   max-height: calc(100vh - 200px);
   overflow-y: auto;
   pointer-events: all;
@@ -67,4 +67,165 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Hash Info Badge — Prominent LSB Display
+   ═══════════════════════════════════════════════════════════════ */
+
+.hashBadge {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(192, 132, 252, 0.08) 0%,
+    rgba(244, 114, 182, 0.06) 50%,
+    rgba(192, 132, 252, 0.04) 100%
+  );
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  border-radius: var(--radius-md);
+  padding: 0;
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+  box-shadow:
+    0 0 20px rgba(192, 132, 252, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Gradient border glow */
+.hashBadge::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-md);
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-secondary) 50%,
+    var(--accent) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  animation: hashBadgePulse 3s ease-in-out infinite;
+}
+
+@keyframes hashBadgePulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.65; }
+}
+
+.hashBadgeHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(192, 132, 252, 0.1);
+  border-bottom: 1px solid rgba(192, 132, 252, 0.15);
+}
+
+.hashBadgeIcon {
+  font-size: 16px;
+  filter: drop-shadow(0 0 4px var(--accent-glow));
+}
+
+.hashBadgeTitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.hashBadgeBody {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hashRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hashLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.hashValue {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.hashBinary {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.hashBinaryDim {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.hashBinaryHighlight {
+  color: var(--accent);
+  font-weight: 600;
+  text-shadow: 0 0 10px var(--accent-glow-strong);
+  position: relative;
+}
+
+.hashBinaryHighlight::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+  border-radius: 1px;
+  box-shadow: 0 0 6px var(--accent-glow);
+}
+
+.hashDivider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--glass-border) 20%,
+    rgba(192, 132, 252, 0.2) 50%,
+    var(--glass-border) 80%,
+    transparent 100%
+  );
+  margin: var(--space-1) 0;
+}
+
+.hashLsbValue {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-shadow: 0 0 12px var(--accent-glow-strong);
+}
+
+.hashBucketIndex {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-secondary);
+  text-shadow: 0 0 8px rgba(244, 114, 182, 0.3);
 }

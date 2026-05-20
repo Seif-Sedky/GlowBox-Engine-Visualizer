@@ -100,10 +100,20 @@ export class ExtendibleHash {
       payload: { nodeId: bucket.id }
     });
     
+    const binaryKey = (key >>> 0).toString(2);
+    const lsbBits = index.toString(2).padStart(this.globalDepth, '0');
+    
     diffs.push({
       type: 'ANNOTATION',
-      annotation: `Key ${key} hashes to index ${index} (LSB=${index.toString(2).padStart(this.globalDepth, '0')})`,
-      payload: { key, index, globalDepth: this.globalDepth }
+      annotation: `Key ${key} → binary: ${binaryKey}, LSB(${this.globalDepth}): ${lsbBits} → bucket index ${index}`,
+      payload: { 
+        key, 
+        binaryKey,
+        lsbBits,
+        bucketIndex: index, 
+        globalDepth: this.globalDepth,
+        isHashInfo: true 
+      }
     });
 
     bucket.keys.push(key);
