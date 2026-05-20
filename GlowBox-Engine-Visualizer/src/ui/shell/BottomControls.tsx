@@ -50,7 +50,7 @@ export const BottomControls: React.FC = () => {
     if (indexType === 'hash') {
       newTree = new ExtendibleHash(maxKeys);
     } else if (indexType === 'rtree') {
-      newTree = new RTree(maxKeys);
+      newTree = new RTree(maxKeys, minKeys);
     } else {
       newTree = new BPlusTree(maxKeys, minKeys);
     }

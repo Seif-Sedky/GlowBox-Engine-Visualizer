@@ -59,17 +59,22 @@ function calculateEnlargement(mbr: MBR, newMbr: MBR): number {
 export class RTree {
   root: RTreeNode;
   capacity: number;
+  minEntries: number;
 
-  constructor(maxEntries: number) {
+  constructor(maxEntries: number, minEntries: number = 2) {
     this.capacity = maxEntries;
     if (this.capacity < 2) {
       this.capacity = 2;
+    }
+    this.minEntries = minEntries;
+    if (this.minEntries < 1) {
+      this.minEntries = 1;
     }
     this.root = new RTreeNode(true);
   }
 
   clone(): RTree {
-    const tree = new RTree(this.capacity);
+    const tree = new RTree(this.capacity, this.minEntries);
     tree.root = this.root.clone();
     return tree;
   }
@@ -206,7 +211,7 @@ export class RTree {
     }
   }
 
-  // Simplified Linear Split
+  // Simplified Linear Split with Min Capacity
   private _splitNode(node: RTreeNode, diffs: Diff[]): RTreeNode {
     // Pick two seeds that are furthest apart
     let maxDist = -1;
@@ -231,15 +236,24 @@ export class RTree {
     }
 
     const newNode = new RTreeNode(node.isLeaf);
-    const oldEntries = node.entries;
+    const oldEntries = [...node.entries];
+    const unassigned = oldEntries.filter((_, idx) => idx !== seed1 && idx !== seed2);
     
     node.entries = [oldEntries[seed1]];
     newNode.entries = [oldEntries[seed2]];
 
-    for (let i = 0; i < oldEntries.length; i++) {
-      if (i === seed1 || i === seed2) continue;
-      
-      const e = oldEntries[i];
+    while (unassigned.length > 0) {
+      const remaining = unassigned.length;
+      if (node.entries.length + remaining === this.minEntries) {
+        node.entries.push(...unassigned);
+        break;
+      }
+      if (newNode.entries.length + remaining === this.minEntries) {
+        newNode.entries.push(...unassigned);
+        break;
+      }
+
+      const e = unassigned.shift()!;
       node.updateMBR();
       newNode.updateMBR();
       
@@ -264,6 +278,14 @@ export class RTree {
     return newNode;
   }
 
+  private _collectDataEntries(node: RTreeNode, dataEntries: [number, number][]) {
+    if (node.isLeaf) {
+      node.entries.forEach(e => dataEntries.push(e.point!));
+    } else {
+      node.entries.forEach(e => this._collectDataEntries(e.child!, dataEntries));
+    }
+  }
+
   delete(point: [number, number]): Diff[] {
     const diffs = this.createDiffArray();
     diffs.push({
@@ -271,9 +293,34 @@ export class RTree {
       annotation: `Deleting point [${point[0]}, ${point[1]}]`
     });
 
-    const deleted = this._deleteAt(this.root, point, diffs);
+    const orphanedPoints: [number, number][] = [];
+    const deleted = this._deleteAt(null, -1, this.root, point, orphanedPoints, diffs);
     if (!deleted) {
       diffs.push({ type: 'ANNOTATION', annotation: 'Point not found' });
+    }
+
+    // Reinsert orphaned entries
+    if (orphanedPoints.length > 0) {
+      diffs.push({ type: 'ANNOTATION', annotation: `Reinserting ${orphanedPoints.length} orphaned points to maintain minimum capacity` });
+      for (const p of orphanedPoints) {
+        const mbr: MBR = [p[0], p[1], p[0], p[1]];
+        const splitNode = this._insertAt(this.root, { mbr, point: p }, diffs);
+        if (splitNode) {
+          const newRoot = new RTreeNode(false);
+          const e1: RTreeEntry = { mbr: [...this.root.mbr], child: this.root };
+          const e2: RTreeEntry = { mbr: [...splitNode.mbr], child: splitNode };
+          newRoot.entries.push(e1, e2);
+          newRoot.updateMBR();
+          
+          const oldRootId = this.root.id;
+          this.root = newRoot;
+
+          diffs.push({ type: 'NODE_CREATE', payload: { nodeId: splitNode.id, isLeaf: splitNode.isLeaf } });
+          diffs.push({ type: 'NODE_SPLIT', payload: { sourceId: oldRootId, newId: splitNode.id, isLeaf: splitNode.isLeaf } });
+          diffs.push({ type: 'NODE_CREATE', payload: { nodeId: newRoot.id, isLeaf: false } });
+          diffs.push({ type: 'ANNOTATION', annotation: 'Root split during reinsertion.' });
+        }
+      }
     }
 
     if (!this.root.isLeaf && this.root.entries.length === 1) {
@@ -284,7 +331,7 @@ export class RTree {
     return diffs;
   }
 
-  private _deleteAt(node: RTreeNode, point: [number, number], diffs: Diff[]): boolean {
+  private _deleteAt(parent: RTreeNode | null, childIndex: number, node: RTreeNode, point: [number, number], orphanedPoints: [number, number][], diffs: Diff[]): boolean {
     diffs.push({ type: 'NODE_HIGHLIGHT', payload: { nodeId: node.id } });
 
     if (node.isLeaf) {
@@ -294,6 +341,14 @@ export class RTree {
           node.entries.splice(i, 1);
           node.updateMBR();
           diffs.push({ type: 'KEY_DELETE', payload: { nodeId: node.id, point } });
+          
+          if (parent && node.entries.length < this.minEntries) {
+            diffs.push({ type: 'ANNOTATION', annotation: `Node ${node.id} underflow. Eliminating node and gathering orphaned points.` });
+            this._collectDataEntries(node, orphanedPoints);
+            parent.entries.splice(childIndex, 1);
+            parent.updateMBR();
+            diffs.push({ type: 'NODE_DELETE', payload: { nodeId: node.id } });
+          }
           return true;
         }
       }
@@ -303,15 +358,21 @@ export class RTree {
         const e = node.entries[i];
         if (point[0] >= e.mbr[0] && point[0] <= e.mbr[2] && point[1] >= e.mbr[1] && point[1] <= e.mbr[3]) {
           diffs.push({ type: 'ANNOTATION', annotation: `Following child ${i}` });
-          const deleted = this._deleteAt(e.child!, point, diffs);
+          const deleted = this._deleteAt(node, i, e.child!, point, orphanedPoints, diffs);
           if (deleted) {
-            if (e.child!.entries.length === 0) {
-              node.entries.splice(i, 1);
-              diffs.push({ type: 'NODE_DELETE', payload: { nodeId: e.child!.id } });
-            } else {
+            const stillExists = node.entries.includes(e);
+            if (stillExists) {
               e.mbr = [...e.child!.mbr];
             }
             node.updateMBR();
+            
+            if (parent && node.entries.length < this.minEntries) {
+              diffs.push({ type: 'ANNOTATION', annotation: `Node ${node.id} underflow. Eliminating node and gathering orphaned points.` });
+              this._collectDataEntries(node, orphanedPoints);
+              parent.entries.splice(childIndex, 1);
+              parent.updateMBR();
+              diffs.push({ type: 'NODE_DELETE', payload: { nodeId: node.id } });
+            }
             return true;
           }
         }

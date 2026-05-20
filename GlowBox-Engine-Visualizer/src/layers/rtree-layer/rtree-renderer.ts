@@ -32,7 +32,7 @@ export interface SpatialBox {
 
 export class RTreeRenderer {
   capacity: number;
-  nodeWidth = 120;
+  nodeWidth = 240;
   nodeHeight = 40;
   verticalSpacing = 80;
   horizontalSpacing = 20;
