@@ -1,0 +1,85 @@
+.container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.panel {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid var(--glass-border);
+}
+
+.panel:last-child {
+  border-right: none;
+}
+
+.svgCanvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.linkPath {
+  fill: none;
+  stroke: var(--glass-border);
+  stroke-width: 2;
+  transition: stroke 0.3s ease;
+}
+
+.nodeGroup {
+  cursor: pointer;
+  filter: url(#glow-md);
+}
+
+.nodeRect {
+  fill: var(--bg-elevated);
+  stroke: var(--glass-border);
+  stroke-width: 2;
+  rx: 6;
+  transition: all 0.3s ease;
+}
+
+.keyRect {
+  fill: transparent;
+  stroke: var(--glass-border);
+  stroke-width: 1;
+  transition: all 0.3s ease;
+}
+
+.keyText {
+  fill: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+/* Spatial View */
+.spatialBox {
+  fill: rgba(0, 0, 0, 0.1);
+  stroke-width: 2;
+  transition: all 0.3s ease;
+}
+
+.spatialBox:hover {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke-width: 3;
+}
+
+.spatialPoint {
+  fill: var(--accent);
+  transition: all 0.3s ease;
+}
+
+.spatialLabel {
+  fill: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  pointer-events: none;
+}

@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { BPlusTree } from '../engine/structures/bplus-tree';
 import { ExtendibleHash } from '../engine/structures/extendible-hash';
+import { RTree } from '../engine/structures/r-tree';
 
-export type TreeState = BPlusTree | ExtendibleHash;
+export type TreeState = BPlusTree | ExtendibleHash | RTree;
 
 interface SessionState {
   operationHistory: string[];

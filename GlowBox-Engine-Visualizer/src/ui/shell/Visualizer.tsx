@@ -5,6 +5,7 @@ import { BottomControls } from './BottomControls'
 import { AnnotationPopup } from './AnnotationPopup'
 import { IndexLayer } from '../../layers/index-layer/IndexLayer'
 import { HashLayer } from '../../layers/hash-layer/HashLayer'
+import { RTreeLayer } from '../../layers/rtree-layer/RTreeLayer'
 import styles from './Visualizer.module.css'
 
 export function Visualizer() {
@@ -16,7 +17,7 @@ export function Visualizer() {
 
       {/* ── Main canvas area ── */}
       <main className={styles.main}>
-        {indexType === 'hash' ? <HashLayer /> : <IndexLayer />}
+        {indexType === 'hash' ? <HashLayer /> : indexType === 'rtree' ? <RTreeLayer /> : <IndexLayer />}
         <AnnotationPopup />
       </main>
 

@@ -28,7 +28,7 @@ const INDICES: {
       title: 'R-Tree',
       desc: 'A tree data structure used for spatial access methods, i.e., for indexing multi-dimensional information such as geographical coordinates.',
       img: '/rtree_preview.png',
-      available: false, // Coming soon
+      available: true,
     },
   ]
 

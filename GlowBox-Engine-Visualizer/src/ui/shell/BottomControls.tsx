@@ -5,6 +5,7 @@ import { useSessionStore } from '../../store/session.store';
 import { THEMES } from '../../store/theme.types';
 import { BPlusTree } from '../../engine/structures/bplus-tree';
 import { ExtendibleHash } from '../../engine/structures/extendible-hash';
+import { RTree } from '../../engine/structures/r-tree';
 import { AnimationQueue } from '../../animation/queue';
 import { TimelineController } from '../../animation/timeline-controller';
 
@@ -32,6 +33,8 @@ function diffsToStepLog(diffs: import('../../engine/diff.types').Diff[]): StepLo
 
 export const BottomControls: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
+  const [inputX, setInputX] = useState('');
+  const [inputY, setInputY] = useState('');
   const { theme, maxKeys, minKeys, speed, indexType } = useUIStore();
   const { currentTreeState, setTreeState } = useSessionStore();
   const activeTheme = THEMES[theme];
@@ -46,6 +49,8 @@ export const BottomControls: React.FC = () => {
     let newTree;
     if (indexType === 'hash') {
       newTree = new ExtendibleHash(maxKeys);
+    } else if (indexType === 'rtree') {
+      newTree = new RTree(maxKeys);
     } else {
       newTree = new BPlusTree(maxKeys, minKeys);
     }
@@ -54,12 +59,24 @@ export const BottomControls: React.FC = () => {
   };
 
   const handleInsert = () => {
-    if (!inputValue) return;
-    const val = parseInt(inputValue, 10);
-    if (isNaN(val)) return;
-
-    const tree = getOrInitTree();
-    const diffs = tree.insert(val);
+    const tree = getOrInitTree() as any;
+    let diffs;
+    
+    if (indexType === 'rtree') {
+      if (!inputX || !inputY) return;
+      const x = parseInt(inputX, 10);
+      const y = parseInt(inputY, 10);
+      if (isNaN(x) || isNaN(y)) return;
+      diffs = tree.insert([x, y]);
+      setInputX('');
+      setInputY('');
+    } else {
+      if (!inputValue) return;
+      const val = parseInt(inputValue, 10);
+      if (isNaN(val)) return;
+      diffs = tree.insert(val);
+      setInputValue('');
+    }
     
     useUIStore.getState().setStepLog(diffsToStepLog(diffs));
     
@@ -68,36 +85,57 @@ export const BottomControls: React.FC = () => {
     setTreeState(Object.assign(Object.create(Object.getPrototypeOf(tree)), tree)); 
     
     queue.enqueue(diffs);
-    setInputValue('');
   };
 
   const handleDelete = () => {
-    if (!inputValue) return;
-    const val = parseInt(inputValue, 10);
-    if (isNaN(val)) return;
+    const tree = getOrInitTree() as any;
+    let diffs;
 
-    const tree = getOrInitTree();
-    const diffs = tree.delete(val);
+    if (indexType === 'rtree') {
+      if (!inputX || !inputY) return;
+      const x = parseInt(inputX, 10);
+      const y = parseInt(inputY, 10);
+      if (isNaN(x) || isNaN(y)) return;
+      diffs = tree.delete([x, y]);
+      setInputX('');
+      setInputY('');
+    } else {
+      if (!inputValue) return;
+      const val = parseInt(inputValue, 10);
+      if (isNaN(val)) return;
+      diffs = tree.delete(val);
+      setInputValue('');
+    }
     
     useUIStore.getState().setStepLog(diffsToStepLog(diffs));
 
     setTreeState(Object.assign(Object.create(Object.getPrototypeOf(tree)), tree)); 
     queue.enqueue(diffs);
-    setInputValue('');
   };
 
   const handleSelect = () => {
-    if (!inputValue) return;
-    const val = parseInt(inputValue, 10);
-    if (isNaN(val)) return;
+    const tree = getOrInitTree() as any;
+    let diffs;
 
-    const tree = getOrInitTree();
-    const diffs = tree.search(val);
+    if (indexType === 'rtree') {
+      if (!inputX || !inputY) return;
+      const x = parseInt(inputX, 10);
+      const y = parseInt(inputY, 10);
+      if (isNaN(x) || isNaN(y)) return;
+      diffs = tree.search([x, y]);
+      setInputX('');
+      setInputY('');
+    } else {
+      if (!inputValue) return;
+      const val = parseInt(inputValue, 10);
+      if (isNaN(val)) return;
+      diffs = tree.search(val);
+      setInputValue('');
+    }
 
     useUIStore.getState().setStepLog(diffsToStepLog(diffs));
 
     queue.enqueue(diffs);
-    setInputValue('');
   };
 
   const handleReset = () => {
@@ -105,19 +143,42 @@ export const BottomControls: React.FC = () => {
     useSessionStore.getState().clearSession();
     useUIStore.getState().setStepLog([]);
     setInputValue('');
+    setInputX('');
+    setInputY('');
   };
 
   return (
     <div className={`glass ${styles.bottomControlsContainer}`}>
 
       <div className={styles.inputGroup}>
-        <input
-          type="number"
-          className={styles.inputField}
-          placeholder="Value..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
+        {indexType === 'rtree' ? (
+          <div className={styles.xyGroup}>
+            <input
+              type="number"
+              className={styles.inputField}
+              style={{ width: '50px' }}
+              placeholder="X..."
+              value={inputX}
+              onChange={(e) => setInputX(e.target.value)}
+            />
+            <input
+              type="number"
+              className={styles.inputField}
+              style={{ width: '50px' }}
+              placeholder="Y..."
+              value={inputY}
+              onChange={(e) => setInputY(e.target.value)}
+            />
+          </div>
+        ) : (
+          <input
+            type="number"
+            className={styles.inputField}
+            placeholder="Value..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
+        )}
         <button className={styles.actionBtn} onClick={handleInsert}>Ins</button>
         <button className={styles.actionBtn} onClick={handleDelete}>Del</button>
         <button className={styles.actionBtn} onClick={handleSelect}>Sel</button>
