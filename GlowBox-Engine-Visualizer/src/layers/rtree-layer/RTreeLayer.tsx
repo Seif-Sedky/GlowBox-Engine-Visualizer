@@ -160,6 +160,19 @@ export const RTreeLayer: React.FC = () => {
               });
            });
 
+           allNodesSel.on('click', (event, d) => {
+             const boxId = d.id.replace('node_', 'box_');
+             const box = d3.select(spatialBoxesRef.current).select(`#${boxId}`);
+             if (!box.empty()) {
+               const rect = box.select('rect');
+               gsap.fromTo(rect.node(), 
+                 { fill: 'rgba(255, 255, 255, 0.6)', strokeWidth: 5 },
+                 { fill: 'rgba(0, 0, 0, 0.1)', strokeWidth: 2, duration: 1, ease: 'power2.out', clearProps: 'fill,strokeWidth' }
+               );
+               box.raise();
+             }
+           });
+
            const allNodes = allNodesSel.nodes();
            if (allNodes.length > 0) {
              tl.to(allNodes, {
