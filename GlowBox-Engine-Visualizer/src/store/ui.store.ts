@@ -3,7 +3,7 @@ import type { ThemeId } from './theme.types'
 import { useSessionStore } from './session.store'
 
 export type AppScreen = 'landing' | 'index-picker' | 'visualizer'
-export type IndexType = 'bplus' | 'hash' | 'rtree'
+export type IndexType = 'bplus' | 'hash' | 'rtree' | 'ttree' | 'inverted' | 'skiplist' | 'lsmtree'
 
 export interface HashInfoEntry {
   type: 'hash-info'

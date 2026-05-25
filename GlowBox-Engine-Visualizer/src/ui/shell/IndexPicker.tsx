@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useUIStore } from '@store/ui.store'
 import type { IndexType } from '@store/ui.store'
+import { IndexLoreModal } from './IndexLoreModal'
 import styles from './IndexPicker.module.css'
 
 const INDICES: {
@@ -30,14 +32,46 @@ const INDICES: {
       img: '/rtree_preview.png',
       available: true,
     },
+    {
+      id: 'ttree',
+      title: 'T-Tree',
+      desc: 'A highly optimized binary search tree designed for main-memory databases, storing arrays of elements in each node to maximize cache efficiency.',
+      img: '/ttree_preview.png',
+      available: false,
+    },
+    {
+      id: 'inverted',
+      title: 'Inverted Index',
+      desc: 'A database index mapping content, such as words or numbers, to its locations in a document or a set of documents. The core of modern search engines.',
+      img: '/inverted_preview.png',
+      available: false,
+    },
+    {
+      id: 'skiplist',
+      title: 'Skip List',
+      desc: 'A probabilistic data structure that allows O(log n) search complexity within an ordered sequence of elements using multi-layered linked lists.',
+      img: '/skiplist_preview.png',
+      available: false,
+    },
+    {
+      id: 'lsmtree',
+      title: 'LSM Tree',
+      desc: 'Log-Structured Merge-Tree. A data structure that provides attractive performance characteristics for workloads with a high rate of inserts and deletes.',
+      img: '/lsm_preview.png',
+      available: false,
+    },
   ]
 
 export function IndexPicker() {
-  const { setScreen, setIndexType } = useUIStore()
+  const { setScreen, setIndexType, indexType } = useUIStore()
+  const [showLore, setShowLore] = useState(false)
 
   const handleSelect = (id: IndexType, available: boolean) => {
-    if (!available) return;
     setIndexType(id);
+    if (!available) {
+      setShowLore(true);
+      return;
+    }
     setScreen('visualizer');
   }
 
@@ -57,7 +91,6 @@ export function IndexPicker() {
             onClick={() => handleSelect(idx.id, idx.available)}
             style={{ opacity: idx.available ? 1 : 0.6 }}
           >
-            {/* We will load the generated images from the public folder. For now, they act as placeholders if missing */}
             <div className={styles.previewImage} style={{
               background: `url(${idx.img}) center/cover no-repeat`,
               backgroundColor: 'var(--bg-elevated)'
@@ -66,12 +99,14 @@ export function IndexPicker() {
             <h2 className={styles.cardTitle}>{idx.title}</h2>
             <p className={styles.cardDesc}>{idx.desc}</p>
 
-            {!idx.available && (
-              <span className={styles.comingSoon}>Coming Soon</span>
-            )}
+            {!idx.available ? (
+              <span className={styles.comingSoon}>Click to read Lore</span>
+            ) : null}
           </div>
         ))}
       </div>
+      
+      {showLore && <IndexLoreModal onClose={() => setShowLore(false)} />}
     </div>
   )
 }

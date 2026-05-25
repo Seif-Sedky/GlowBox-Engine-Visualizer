@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { useUIStore } from '@store/ui.store'
 import { THEMES } from '@store/theme.types'
 import { useSessionStore } from '@store/session.store'
+import { IndexLoreModal } from './IndexLoreModal'
 import styles from './Navbar.module.css'
-
 
 export function Navbar() {
   const {
@@ -11,6 +12,7 @@ export function Navbar() {
   } = useUIStore()
 
   const activeTheme = THEMES[theme]
+  const [showLore, setShowLore] = useState(false)
 
   return (
     <nav className={`glass ${styles.nav}`} data-theme={theme}>
@@ -96,6 +98,16 @@ export function Navbar() {
           <span className={styles.toggleLabel}>Notes</span>
         </button>
 
+        {/* Lore button */}
+        <button
+          className={styles.toggleBtn}
+          onClick={() => setShowLore(true)}
+          title="Index Lore"
+        >
+          <span className={styles.toggleIcon}>📖</span>
+          <span className={styles.toggleLabel}>Lore</span>
+        </button>
+
         {/* Speed slider */}
         <div className={styles.speedWrap}>
           <span className="label" style={{ color: activeTheme.accent }}>Speed</span>
@@ -116,6 +128,8 @@ export function Navbar() {
           </div>
         </div>
       </div>
+      
+      {showLore && <IndexLoreModal onClose={() => setShowLore(false)} />}
     </nav>
   )
 }
