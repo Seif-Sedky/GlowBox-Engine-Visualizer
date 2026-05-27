@@ -11,6 +11,11 @@ export type DiffType =
   | 'LEAF_LINK_UPDATE' // B+ tree leaf chain
   | 'BUCKET_SPLIT' // Extendible hash
   | 'DIRECTORY_EXPAND' // Extendible hash directory doubling
+  | 'DOC_ADD' // Inverted index doc inserted
+  | 'FST_NODE_CREATE' // Inverted index fst node added
+  | 'FST_EDGE_CREATE' // Inverted index fst edge added
+  | 'FST_NODE_HIGHLIGHT' // Inverted index fst path trace
+  | 'POSTING_APPEND' // Inverted index posting list append
   | 'ANNOTATION'; // triggers a popup tooltip if annotations ON
 
 export interface Diff {

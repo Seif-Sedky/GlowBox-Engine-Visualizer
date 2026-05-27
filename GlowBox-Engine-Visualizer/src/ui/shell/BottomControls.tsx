@@ -6,6 +6,7 @@ import { THEMES } from '../../store/theme.types';
 import { BPlusTree } from '../../engine/structures/bplus-tree';
 import { ExtendibleHash } from '../../engine/structures/extendible-hash';
 import { RTree } from '../../engine/structures/r-tree';
+import { InvertedIndex } from '../../engine/structures/inverted-index';
 import { AnimationQueue } from '../../animation/queue';
 import { TimelineController } from '../../animation/timeline-controller';
 
@@ -53,6 +54,8 @@ export const BottomControls: React.FC = () => {
       newTree = new RTree(maxKeys, minKeys);
     } else if (indexType === 'bplus') {
       newTree = new BPlusTree(maxKeys, minKeys);
+    } else if (indexType === 'inverted') {
+      newTree = new InvertedIndex();
     } else {
       // Dummy tree for unimplemented indices to prevent crashes
       newTree = {
@@ -77,6 +80,10 @@ export const BottomControls: React.FC = () => {
       diffs = tree.insert([x, y]);
       setInputX('');
       setInputY('');
+    } else if (indexType === 'inverted') {
+      if (!inputValue) return;
+      diffs = tree.insert(inputValue);
+      setInputValue('');
     } else {
       if (!inputValue) return;
       const val = parseInt(inputValue, 10);
@@ -106,6 +113,10 @@ export const BottomControls: React.FC = () => {
       diffs = tree.delete([x, y]);
       setInputX('');
       setInputY('');
+    } else if (indexType === 'inverted') {
+      if (!inputValue) return;
+      diffs = tree.delete(inputValue);
+      setInputValue('');
     } else {
       if (!inputValue) return;
       const val = parseInt(inputValue, 10);
@@ -132,6 +143,10 @@ export const BottomControls: React.FC = () => {
       diffs = tree.search([x, y]);
       setInputX('');
       setInputY('');
+    } else if (indexType === 'inverted') {
+      if (!inputValue) return;
+      diffs = tree.search(inputValue);
+      setInputValue('');
     } else {
       if (!inputValue) return;
       const val = parseInt(inputValue, 10);
@@ -179,15 +194,23 @@ export const BottomControls: React.FC = () => {
           </div>
         ) : (
           <input
-            type="number"
+            type={indexType === 'inverted' ? "text" : "number"}
             className={styles.inputField}
-            placeholder="Value..."
+            placeholder={indexType === 'inverted' ? "Text..." : "Value..."}
+            style={indexType === 'inverted' ? { width: '150px' } : undefined}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleInsert();
+              }
+            }}
           />
         )}
         <button className={styles.actionBtn} onClick={handleInsert}>Ins</button>
-        <button className={styles.actionBtn} onClick={handleDelete}>Del</button>
+        {indexType !== 'inverted' && (
+          <button className={styles.actionBtn} onClick={handleDelete}>Del</button>
+        )}
         <button className={styles.actionBtn} onClick={handleSelect}>Sel</button>
       </div>
 

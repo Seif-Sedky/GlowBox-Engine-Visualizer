@@ -28,31 +28,33 @@ export function Navbar() {
 
       {/* ── Center: Max Keys & Min Keys ── */}
       <div className={styles.center} style={{ gap: '2rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span className="label" style={{ color: activeTheme.accent }}>Max Keys</span>
-          <div className={styles.pageSizePills}>
-            {[2, 4, 6, 8].map((s) => (
-              <button
-                key={s}
-                className={`${styles.pill} ${maxKeys === s ? styles.pillActive : ''}`}
-                style={maxKeys === s ? {
-                  background: activeTheme.accentGlow,
-                  borderColor: activeTheme.accent,
-                  color: activeTheme.accent,
-                  boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
-                } : {}}
-                onClick={() => {
-                  setMaxKeys(s);
-                  useSessionStore.getState().clearSession();
-                }}
-              >
-                {s}
-              </button>
-            ))}
+        {indexType !== 'inverted' && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span className="label" style={{ color: activeTheme.accent }}>Max Keys</span>
+            <div className={styles.pageSizePills}>
+              {[2, 4, 6, 8].map((s) => (
+                <button
+                  key={s}
+                  className={`${styles.pill} ${maxKeys === s ? styles.pillActive : ''}`}
+                  style={maxKeys === s ? {
+                    background: activeTheme.accentGlow,
+                    borderColor: activeTheme.accent,
+                    color: activeTheme.accent,
+                    boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
+                  } : {}}
+                  onClick={() => {
+                    setMaxKeys(s);
+                    useSessionStore.getState().clearSession();
+                  }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
         
-        {indexType !== 'hash' && (
+        {indexType !== 'hash' && indexType !== 'inverted' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span className="label" style={{ color: activeTheme.accent }}>Min Keys</span>
             <div className={styles.pageSizePills}>
@@ -82,21 +84,23 @@ export function Navbar() {
       {/* ── Right: Controls ── */}
       <div className={styles.right}>
         {/* Annotations toggle */}
-        <button
-          className={`${styles.toggleBtn} ${annotationsOn ? styles.toggleOn : ''}`}
-          style={annotationsOn ? {
-            borderColor: activeTheme.accent,
-            color: activeTheme.accent,
-            boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
-          } : {}}
-          onClick={toggleAnnotations}
-          title="Toggle annotations"
-        >
-          <span className={styles.toggleIcon}>
-            {annotationsOn ? '◉' : '○'}
-          </span>
-          <span className={styles.toggleLabel}>Notes</span>
-        </button>
+        {indexType !== 'inverted' && (
+          <button
+            className={`${styles.toggleBtn} ${annotationsOn ? styles.toggleOn : ''}`}
+            style={annotationsOn ? {
+              borderColor: activeTheme.accent,
+              color: activeTheme.accent,
+              boxShadow: `0 0 10px ${activeTheme.accentGlow}`,
+            } : {}}
+            onClick={toggleAnnotations}
+            title="Toggle annotations"
+          >
+            <span className={styles.toggleIcon}>
+              {annotationsOn ? '◉' : '○'}
+            </span>
+            <span className={styles.toggleLabel}>Notes</span>
+          </button>
+        )}
 
         {/* Lore button */}
         <button

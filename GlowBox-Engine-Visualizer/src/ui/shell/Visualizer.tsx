@@ -5,6 +5,7 @@ import { AnnotationPopup } from './AnnotationPopup'
 import { IndexLayer } from '../../layers/index-layer/IndexLayer'
 import { HashLayer } from '../../layers/hash-layer/HashLayer'
 import { RTreeLayer } from '../../layers/rtree-layer/RTreeLayer'
+import { InvertedLayer } from '../../layers/inverted-layer/InvertedLayer'
 import { PlaceholderLayer } from '../../layers/placeholder-layer/PlaceholderLayer'
 import styles from './Visualizer.module.css'
 
@@ -16,8 +17,8 @@ export function Visualizer() {
       case 'hash': return <HashLayer />
       case 'rtree': return <RTreeLayer />
       case 'bplus': return <IndexLayer />
+      case 'inverted': return <InvertedLayer />
       case 'ttree':
-      case 'inverted':
       case 'skiplist':
       case 'lsmtree':
         return <PlaceholderLayer />
