@@ -6,6 +6,7 @@ import { IndexLayer } from '../../layers/index-layer/IndexLayer'
 import { HashLayer } from '../../layers/hash-layer/HashLayer'
 import { RTreeLayer } from '../../layers/rtree-layer/RTreeLayer'
 import { InvertedLayer } from '../../layers/inverted-layer/InvertedLayer'
+import { SkipListLayer } from '../../layers/skiplist-layer/SkipListLayer'
 import { PlaceholderLayer } from '../../layers/placeholder-layer/PlaceholderLayer'
 import styles from './Visualizer.module.css'
 
@@ -18,8 +19,8 @@ export function Visualizer() {
       case 'rtree': return <RTreeLayer />
       case 'bplus': return <IndexLayer />
       case 'inverted': return <InvertedLayer />
+      case 'skiplist': return <SkipListLayer />
       case 'ttree':
-      case 'skiplist':
       case 'lsmtree':
         return <PlaceholderLayer />
       default:

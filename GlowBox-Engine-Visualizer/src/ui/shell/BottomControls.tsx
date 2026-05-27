@@ -7,6 +7,7 @@ import { BPlusTree } from '../../engine/structures/bplus-tree';
 import { ExtendibleHash } from '../../engine/structures/extendible-hash';
 import { RTree } from '../../engine/structures/r-tree';
 import { InvertedIndex } from '../../engine/structures/inverted-index';
+import { SkipList } from '../../engine/structures/skip-list';
 import { AnimationQueue } from '../../animation/queue';
 import { TimelineController } from '../../animation/timeline-controller';
 
@@ -16,7 +17,7 @@ const queue = new AnimationQueue(timelineController);
 
 function diffsToStepLog(diffs: import('../../engine/diff.types').Diff[]): StepLogEntry[] {
   return diffs
-    .filter(d => d.type === 'ANNOTATION')
+    .filter(d => !!d.annotation)
     .map(d => {
       if (d.payload?.isHashInfo) {
         return {
@@ -56,6 +57,8 @@ export const BottomControls: React.FC = () => {
       newTree = new BPlusTree(maxKeys, minKeys);
     } else if (indexType === 'inverted') {
       newTree = new InvertedIndex();
+    } else if (indexType === 'skiplist') {
+      newTree = new SkipList(maxKeys);
     } else {
       // Dummy tree for unimplemented indices to prevent crashes
       newTree = {
