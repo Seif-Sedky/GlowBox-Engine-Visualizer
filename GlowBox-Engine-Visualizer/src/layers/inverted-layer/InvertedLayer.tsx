@@ -21,30 +21,39 @@ export const InvertedLayer: React.FC = () => {
   const snapshotRef = useRef<InvertedIndex | null>(null);
   const activeNodeRef = useRef<string | null>(null);
   const activeTermRef = useRef<number | null>(null);
+  const zoomGroupRef = useRef<SVGGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current || !zoomGroupRef.current) return;
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event) => {
+        d3.select(zoomGroupRef.current).attr('transform', event.transform);
+      });
+    d3.select(svgRef.current).call(zoom);
+  }, []);
 
   const performRender = () => {
     if (!svgRef.current || !containerRef.current) return;
     const width = containerRef.current.clientWidth || 800;
     const height = containerRef.current.clientHeight || 600;
 
-    const svg = d3.select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height);
+    const svgG = d3.select(zoomGroupRef.current) as any;
 
     if (snapshotRef.current) {
        renderInvertedIndex(
-         { svg, width, height, theme: activeTheme },
+         { svg: svgG, width, height, theme: activeTheme },
          snapshotRef.current,
          { activeNodeId: activeNodeRef.current, activeTermId: activeTermRef.current }
        );
     } else if (treeState) {
        renderInvertedIndex(
-         { svg, width, height, theme: activeTheme },
+         { svg: svgG, width, height, theme: activeTheme },
          treeState,
          { activeNodeId: null, activeTermId: null }
        );
     } else {
-       svg.selectAll('*').remove();
+       svgG.selectAll('*').remove();
     }
   };
 
@@ -100,7 +109,9 @@ export const InvertedLayer: React.FC = () => {
 
   return (
     <div className={styles.layerContainer} ref={containerRef} style={{ width: '100%', height: '100%' }}>
-      <svg ref={svgRef} className={styles.svgCanvas} />
+      <svg ref={svgRef} className={styles.svgCanvas}>
+        <g ref={zoomGroupRef} />
+      </svg>
     </div>
   );
 };

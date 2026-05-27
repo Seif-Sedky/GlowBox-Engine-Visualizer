@@ -16,8 +16,19 @@ export const RTreeLayer: React.FC = () => {
   const treeLinksRef = useRef<SVGGElement>(null);
   const treeNodesRef = useRef<SVGGElement>(null);
   const spatialBoxesRef = useRef<SVGGElement>(null);
+  const treeZoomGroupRef = useRef<SVGGElement>(null);
 
   const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!treeSvgRef.current || !treeZoomGroupRef.current) return;
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event) => {
+        d3.select(treeZoomGroupRef.current).attr('transform', event.transform);
+      });
+    d3.select(treeSvgRef.current).call(zoom);
+  }, []);
 
   useEffect(() => {
     if (spatialSvgRef.current) {
@@ -283,8 +294,10 @@ export const RTreeLayer: React.FC = () => {
               </feMerge>
             </filter>
           </defs>
-          <g ref={treeLinksRef} className="links" />
-          <g ref={treeNodesRef} className="nodes" />
+          <g ref={treeZoomGroupRef}>
+            <g ref={treeLinksRef} className="links" />
+            <g ref={treeNodesRef} className="nodes" />
+          </g>
         </svg>
       </div>
       <div className={styles.panel}>

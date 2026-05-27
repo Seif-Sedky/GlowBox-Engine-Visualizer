@@ -11,8 +11,19 @@ import styles from './IndexLayer.module.css';
 export const IndexLayer: React.FC = () => {
   const treeState = useSessionStore(s => s.currentTreeState) as BPlusTree | null;
   const svgRef = useRef<SVGSVGElement>(null);
+  const zoomGroupRef = useRef<SVGGElement>(null);
   const linksLayerRef = useRef<SVGGElement>(null);
   const nodesLayerRef = useRef<SVGGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current || !zoomGroupRef.current) return;
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event) => {
+        d3.select(zoomGroupRef.current).attr('transform', event.transform);
+      });
+    d3.select(svgRef.current).call(zoom);
+  }, []);
 
   // Clear canvas if tree is null (e.g. session cleared)
   useEffect(() => {
@@ -196,8 +207,10 @@ export const IndexLayer: React.FC = () => {
           </feMerge>
         </filter>
       </defs>
-      <g ref={linksLayerRef} className="links" />
-      <g ref={nodesLayerRef} className="nodes" />
+      <g ref={zoomGroupRef}>
+        <g ref={linksLayerRef} className="links" />
+        <g ref={nodesLayerRef} className="nodes" />
+      </g>
     </svg>
   );
 };

@@ -11,9 +11,20 @@ import styles from '../index-layer/IndexLayer.module.css'; // Reusing styles fro
 export const HashLayer: React.FC = () => {
   const treeState = useSessionStore(s => s.currentTreeState) as ExtendibleHash | null;
   const svgRef = useRef<SVGSVGElement>(null);
+  const zoomGroupRef = useRef<SVGGElement>(null);
   const linksLayerRef = useRef<SVGGElement>(null);
   const dirLayerRef = useRef<SVGGElement>(null);
   const bucketsLayerRef = useRef<SVGGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current || !zoomGroupRef.current) return;
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event) => {
+        d3.select(zoomGroupRef.current).attr('transform', event.transform);
+      });
+    d3.select(svgRef.current).call(zoom);
+  }, []);
 
   useEffect(() => {
     if (!treeState) {
@@ -259,9 +270,11 @@ export const HashLayer: React.FC = () => {
           </feMerge>
         </filter>
       </defs>
-      <g ref={linksLayerRef} className="links" />
-      <g ref={dirLayerRef} className="directory" />
-      <g ref={bucketsLayerRef} className="buckets" />
+      <g ref={zoomGroupRef}>
+        <g ref={linksLayerRef} className="links" />
+        <g ref={dirLayerRef} className="directory" />
+        <g ref={bucketsLayerRef} className="buckets" />
+      </g>
     </svg>
   );
 };
