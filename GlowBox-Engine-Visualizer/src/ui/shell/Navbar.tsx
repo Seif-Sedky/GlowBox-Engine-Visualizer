@@ -31,7 +31,7 @@ export function Navbar() {
         {indexType !== 'inverted' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span className="label" style={{ color: activeTheme.accent }}>
-              {indexType === 'skiplist' ? 'Max Height' : 'Max Keys'}
+              {indexType === 'skiplist' ? 'Max Height' : indexType === 'lsmtree' ? 'MemTable Size' : 'Max Keys'}
             </span>
             <div className={styles.pageSizePills}>
               {[2, 4, 6, 8].map((s) => (
@@ -58,7 +58,9 @@ export function Navbar() {
         
         {indexType !== 'hash' && indexType !== 'inverted' && indexType !== 'skiplist' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span className="label" style={{ color: activeTheme.accent }}>Min Keys</span>
+            <span className="label" style={{ color: activeTheme.accent }}>
+              {indexType === 'lsmtree' ? 'Compact Threshold' : 'Min Keys'}
+            </span>
             <div className={styles.pageSizePills}>
               {[1, 2, 3, 4].map((u) => (
                 <button

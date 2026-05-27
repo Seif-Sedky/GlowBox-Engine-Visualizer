@@ -8,6 +8,7 @@ import { ExtendibleHash } from '../../engine/structures/extendible-hash';
 import { RTree } from '../../engine/structures/r-tree';
 import { InvertedIndex } from '../../engine/structures/inverted-index';
 import { SkipList } from '../../engine/structures/skip-list';
+import { LSMTree } from '../../engine/structures/lsm-tree';
 import { AnimationQueue } from '../../animation/queue';
 import { TimelineController } from '../../animation/timeline-controller';
 
@@ -59,6 +60,8 @@ export const BottomControls: React.FC = () => {
       newTree = new InvertedIndex();
     } else if (indexType === 'skiplist') {
       newTree = new SkipList(maxKeys);
+    } else if (indexType === 'lsmtree') {
+      newTree = new LSMTree(maxKeys, minKeys);
     } else {
       // Dummy tree for unimplemented indices to prevent crashes
       newTree = {

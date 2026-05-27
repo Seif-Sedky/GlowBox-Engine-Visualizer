@@ -21,6 +21,11 @@ export type DiffType =
   | 'SL_NODE_HIGHLIGHT' // Skip list traversal highlight
   | 'SL_CLEAR_HIGHLIGHT' // Skip list clear highlights after delay
   | 'SL_COIN_FLIP' // Skip list coin flip annotation
+  | 'LSM_MEMTABLE_INSERT'
+  | 'LSM_FLUSH'
+  | 'LSM_COMPACT'
+  | 'LSM_SEARCH_HIGHLIGHT'
+  | 'LSM_CLEAR_HIGHLIGHT'
   | 'ANNOTATION'; // triggers a popup tooltip if annotations ON
 
 export interface Diff {
