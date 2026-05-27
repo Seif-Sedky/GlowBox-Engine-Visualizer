@@ -32,7 +32,9 @@ The core feature of the application is its interactive visualizers for various d
 
 ## 🚀 Getting Started
 
-### Prerequisites
+Link: https://seif-sedky.github.io/GlowBox-Engine-Visualizer/
+
+### Installation
 Make sure you have Node.js and npm (or yarn/pnpm) installed.
 
 ### Installation
