@@ -55,8 +55,7 @@ export function Landing() {
         </h1>
 
         <p className={styles.subtitle}>
-          Watch index structures breathe, split, and collapse —<br />
-          in real time.
+          Watch index structures breathe, split, and collapse.<br />
         </p>
       </section>
 
