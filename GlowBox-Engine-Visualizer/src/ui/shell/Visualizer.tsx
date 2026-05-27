@@ -9,7 +9,6 @@ import { RTreeLayer } from '../../layers/rtree-layer/RTreeLayer'
 import { InvertedLayer } from '../../layers/inverted-layer/InvertedLayer'
 import { SkipListLayer } from '../../layers/skiplist-layer/SkipListLayer'
 import { LsmTreeLayer } from '../../layers/lsmtree-layer/LsmTreeLayer'
-import { PlaceholderLayer } from '../../layers/placeholder-layer/PlaceholderLayer'
 import { MechanismModal } from './MechanismModal'
 import styles from './Visualizer.module.css'
 

@@ -245,7 +245,6 @@ export const SkipListLayer: React.FC = () => {
                 activePathRef.current = []; // Clear the path
             });
             // Animate all back to normal
-            const renderer = new SkipListRenderer();
             d3.select(nodesLayerRef.current).selectAll<SVGGElement, LayoutNode>('g.node-group')
               .each(function(d) {
                 const g = d3.select(this);
@@ -258,7 +257,7 @@ export const SkipListLayer: React.FC = () => {
               });
               
             d3.select(linksLayerRef.current).selectAll<SVGPathElement, LayoutLink>('path')
-              .each(function(d) {
+              .each(function() {
                 d3.select(this)
                  .attr('stroke', 'var(--glass-border)')
                  .attr('stroke-width', 2)

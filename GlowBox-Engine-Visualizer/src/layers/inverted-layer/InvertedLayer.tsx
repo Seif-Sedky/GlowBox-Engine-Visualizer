@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import * as d3 from 'd3';
 import { LayerRegistry } from '../layer-registry';

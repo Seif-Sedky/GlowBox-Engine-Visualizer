@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { InvertedIndex, FSTNode } from '../../engine/structures/inverted-index';
-import { THEMES, ThemeDefinition } from '../../store/theme.types';
+import { ThemeDefinition } from '../../store/theme.types';
 
 interface RenderContext {
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;

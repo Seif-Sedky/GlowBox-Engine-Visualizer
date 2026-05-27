@@ -56,7 +56,7 @@ const INDICES: {
   ]
 
 export function IndexPicker() {
-  const { setScreen, setIndexType, indexType } = useUIStore()
+  const { setScreen, setIndexType } = useUIStore()
   const [showLore, setShowLore] = useState(false)
 
   const handleSelect = (id: IndexType, available: boolean) => {

@@ -1,4 +1,4 @@
-import { LSMTree, AVLTreeNode, SSTable } from '../../engine/structures/lsm-tree';
+import { LSMTree, AVLTreeNode } from '../../engine/structures/lsm-tree';
 
 export interface LayoutNode {
   id: string;

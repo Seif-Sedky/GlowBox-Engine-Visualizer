@@ -114,7 +114,7 @@ export class InvertedIndex {
     return diffs;
   }
 
-  delete(text: string): Diff[] {
+  delete(_text: string): Diff[] {
     return [{ type: 'ANNOTATION', annotation: 'Delete operation not yet supported for Inverted Index.' }];
   }
 

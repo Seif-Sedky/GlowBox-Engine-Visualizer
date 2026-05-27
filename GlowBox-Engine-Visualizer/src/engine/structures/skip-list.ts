@@ -263,7 +263,6 @@ export class SkipList {
     nodeMap.set(this.head, cloneHead);
 
     let curr = this.head.forward[0];
-    let currClone = cloneHead;
     
     // First pass: create all nodes
     while (curr) {
