@@ -33,13 +33,6 @@ const INDICES: {
       available: true,
     },
     {
-      id: 'ttree',
-      title: 'T-Tree',
-      desc: 'A highly optimized binary search tree designed for main-memory databases, storing arrays of elements in each node to maximize cache efficiency.',
-      img: '/t-tree.png',
-      available: true,
-    },
-    {
       id: 'inverted',
       title: 'Inverted Index',
       desc: 'A database index mapping content, such as words or numbers, to its locations in a document or a set of documents. The core of modern search engines.',

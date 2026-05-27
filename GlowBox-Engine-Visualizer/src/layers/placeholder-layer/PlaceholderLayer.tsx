@@ -7,7 +7,6 @@ export const PlaceholderLayer: React.FC = () => {
 
   const getTitle = () => {
     switch (indexType) {
-      case 'ttree': return 'T-Tree Visualizer';
       case 'inverted': return 'Inverted Index Visualizer';
       case 'skiplist': return 'Skip List Visualizer';
       case 'lsmtree': return 'LSM Tree Visualizer';

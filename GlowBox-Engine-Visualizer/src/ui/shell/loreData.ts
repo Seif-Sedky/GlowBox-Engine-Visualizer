@@ -59,28 +59,6 @@ export const LORE_DATA: Record<string, IndexLore> = {
       ]
     }
   },
-  ttree: {
-    id: 'ttree',
-    name: 'T-Tree',
-    era: '1986 · In-memory era',
-    text: "  By the mid-1980s, RAM was getting cheap, and a new breed of in-memory databases was emerging. The B+ tree, designed for disk I/O, felt bloated in memory: all those pointers, all that overhead. Enter Tobin Lehman and Michael Carey of the University of Wisconsin in 1986, who asked: \"What if we made an AVL tree, but let each node hold a whole array of keys?\" The result was the T-tree: slim, cache-friendly, and fast for main-memory workloads. It enjoyed a golden era in real-time and embedded database systems. Then cache-aware data structures and modern memory hierarchies arrived, and the debate over whether T-trees or B-trees perform better in memory was never quite settled, which is exactly the kind of drama database nerds thrive on.",
-    papers: [
-      { authors: 'Lehman, T. & Carey, M.', title: 'A Study of Index Structures for Main Memory Database Management Systems', conference: 'VLDB', note: '1986' },
-      { authors: 'Hankins, R. et al.', title: 'Effect of Node Size on the Performance of Cache-Conscious B+-Trees', conference: 'ACM SIGMETRICS', note: '2003' }
-    ],
-    familyTree: {
-      name: 'Binary Search Tree (BST)',
-      children: [
-        {
-          name: 'AVL Tree',
-          children: [
-            { name: 'T-Tree' }
-          ]
-        },
-        { name: 'Red-Black Tree' }
-      ]
-    }
-  },
   hash: {
     id: 'hash',
     name: 'Extendible Hash Index',
