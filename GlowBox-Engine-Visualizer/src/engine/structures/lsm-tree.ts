@@ -2,7 +2,6 @@ import { Diff } from '../diff.types';
 
 export interface SSTableEntry {
   key: number;
-  isTombstone: boolean;
   timestamp: number;
 }
 
@@ -18,16 +17,14 @@ export class SSTable {
 
 export class AVLTreeNode {
   key: number;
-  isTombstone: boolean;
   timestamp: number;
   height: number;
   left: AVLTreeNode | null = null;
   right: AVLTreeNode | null = null;
   id: string;
 
-  constructor(key: number, isTombstone: boolean, timestamp: number) {
+  constructor(key: number, timestamp: number) {
     this.key = key;
-    this.isTombstone = isTombstone;
     this.timestamp = timestamp;
     this.height = 1;
     this.id = `avl_${key}`;
@@ -85,19 +82,18 @@ export class LSMTree {
     return y;
   }
 
-  private insertAVL(node: AVLTreeNode | null, key: number, isTombstone: boolean, timestamp: number, diffs: Diff[], isNewRef: {val: boolean}): AVLTreeNode {
+  private insertAVL(node: AVLTreeNode | null, key: number, timestamp: number, diffs: Diff[], isNewRef: {val: boolean}): AVLTreeNode {
     if (!node) {
       isNewRef.val = true;
-      return new AVLTreeNode(key, isTombstone, timestamp);
+      return new AVLTreeNode(key, timestamp);
     }
 
     if (key < node.key) {
-      node.left = this.insertAVL(node.left, key, isTombstone, timestamp, diffs, isNewRef);
+      node.left = this.insertAVL(node.left, key, timestamp, diffs, isNewRef);
     } else if (key > node.key) {
-      node.right = this.insertAVL(node.right, key, isTombstone, timestamp, diffs, isNewRef);
+      node.right = this.insertAVL(node.right, key, timestamp, diffs, isNewRef);
     } else {
       // Update existing key in memtable
-      node.isTombstone = isTombstone;
       node.timestamp = timestamp;
       return node;
     }
@@ -130,21 +126,21 @@ export class LSMTree {
   private flattenAVL(node: AVLTreeNode | null, result: SSTableEntry[]) {
     if (!node) return;
     this.flattenAVL(node.left, result);
-    result.push({ key: node.key, isTombstone: node.isTombstone, timestamp: node.timestamp });
+    result.push({ key: node.key, timestamp: node.timestamp });
     this.flattenAVL(node.right, result);
   }
 
-  insert(key: number, isTombstone: boolean = false): Diff[] {
+  insert(key: number): Diff[] {
     const diffs: Diff[] = [];
     const timestamp = ++this.currentTimestamp;
 
     diffs.push({
       type: 'ANNOTATION',
-      annotation: isTombstone ? `Inserting tombstone for ${key} into MemTable` : `Inserting ${key} into MemTable`
+      annotation: `Inserting ${key} into MemTable`
     });
 
     const isNew = { val: false };
-    this.memTableRoot = this.insertAVL(this.memTableRoot, key, isTombstone, timestamp, diffs, isNew);
+    this.memTableRoot = this.insertAVL(this.memTableRoot, key, timestamp, diffs, isNew);
     
     if (isNew.val) {
       this.memTableSize++;
@@ -160,10 +156,6 @@ export class LSMTree {
     }
 
     return diffs;
-  }
-
-  delete(key: number): Diff[] {
-    return this.insert(key, true);
   }
 
   private flushMemTable(diffs: Diff[]) {
@@ -212,21 +204,11 @@ export class LSMTree {
         return a.key - b.key;
       });
 
-      // Deduplicate and filter out tombstones if it's the last level (for simplicity, we always deduplicate)
+      // Deduplicate
       const merged: SSTableEntry[] = [];
       for (const entry of allEntries) {
         if (merged.length === 0 || merged[merged.length - 1].key !== entry.key) {
-          // If we are merging into the LAST level, we could drop tombstones.
-          // For visualization, let's keep tombstones unless we want to fully purge them.
-          // Let's purge tombstones if they are old to save space.
-          // Actually, standard LSM purges tombstones during compaction if there are no older versions.
-          // We'll just drop tombstones if this is a compaction into a level > 0 and it's the only record.
-          // To keep it simple visually: just keep all latest versions (even tombstones) unless we want to purge.
-          // Let's purge tombstones to show the space saving!
-          // We will ONLY purge a tombstone if we are compacting to the deepest level? No, let's just drop tombstones during merge to simulate cleanup.
-          if (!entry.isTombstone) {
-            merged.push(entry);
-          }
+          merged.push(entry);
         }
       }
 
@@ -267,11 +249,7 @@ export class LSMTree {
       });
 
       if (key === curr.key) {
-        if (curr.isTombstone) {
-          diffs.push({ type: 'ANNOTATION', annotation: `Found tombstone for ${key} in MemTable. Value is deleted.` });
-        } else {
-          diffs.push({ type: 'ANNOTATION', annotation: `Found ${key} in MemTable!` });
-        }
+        diffs.push({ type: 'ANNOTATION', annotation: `Found ${key} in MemTable!` });
         diffs.push({ type: 'LSM_CLEAR_HIGHLIGHT' });
         return diffs;
       } else if (key < curr.key) {
@@ -311,11 +289,7 @@ export class LSMTree {
           });
 
           if (entry.key === key) {
-            if (entry.isTombstone) {
-              diffs.push({ type: 'ANNOTATION', annotation: `Found tombstone for ${key} in Level ${l}. Value is deleted.` });
-            } else {
-              diffs.push({ type: 'ANNOTATION', annotation: `Found ${key} in Level ${l}, SSTable ${sstIdx}!` });
-            }
+            diffs.push({ type: 'ANNOTATION', annotation: `Found ${key} in Level ${l}, SSTable ${sstIdx}!` });
             diffs.push({ type: 'LSM_CLEAR_HIGHLIGHT' });
             return diffs;
           } else if (key < entry.key) {
@@ -345,7 +319,7 @@ export class LSMTree {
     // Clone AVL
     const cloneNode = (node: AVLTreeNode | null): AVLTreeNode | null => {
       if (!node) return null;
-      const n = new AVLTreeNode(node.key, node.isTombstone, node.timestamp);
+      const n = new AVLTreeNode(node.key, node.timestamp);
       n.height = node.height;
       n.id = node.id;
       n.left = cloneNode(node.left);

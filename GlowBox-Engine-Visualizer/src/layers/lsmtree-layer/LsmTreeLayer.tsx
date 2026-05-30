@@ -86,10 +86,10 @@ export const LsmTreeLayer: React.FC = () => {
                   .each(function(d) {
                     const g = d3.select(this);
                     if (d.type === 'memtable') {
-                       g.select('circle').attr('stroke', d.isTombstone ? 'rgba(220, 53, 69, 0.5)' : activeTheme.accent).attr('stroke-width', 2);
+                       g.select('circle').attr('stroke', activeTheme.accent).attr('stroke-width', 2);
                     } else {
-                       g.select('rect').attr('fill', d.isTombstone ? 'rgba(220, 53, 69, 0.1)' : 'var(--bg-elevated)');
-                       g.select('text').attr('fill', d.isTombstone ? '#dc3545' : 'var(--text-primary)');
+                       g.select('rect').attr('fill', 'var(--bg-elevated)');
+                       g.select('text').attr('fill', 'var(--text-primary)');
                     }
                   });
                 d3.select(sstablesLayerRef.current).selectAll('g').select('rect')
@@ -183,7 +183,7 @@ export const LsmTreeLayer: React.FC = () => {
              .data(newLayout.nodes, d => d.id);
              
            const nodeEnter = nodeSelection.enter().append('g')
-             .attr('class', d => `node-group ${d.type === 'memtable' ? styles.memtableNode : styles.sstableEntry} ${d.isTombstone ? styles.tombstoneNode : ''}`)
+             .attr('class', d => `node-group ${d.type === 'memtable' ? styles.memtableNode : styles.sstableEntry}`)
              .attr('id', d => `node-${d.id}`)
              .style('opacity', 0);
              
@@ -191,18 +191,18 @@ export const LsmTreeLayer: React.FC = () => {
              gsap.set(this, { x: d.x, y: d.y - 50, scale: 0.5 }); // Start slightly above
              
              const g = d3.select(this);
-             const displayKey = d.isTombstone ? `${d.key} (X)` : `${d.key}`;
+             const displayKey = `${d.key}`;
              
              if (d.type === 'memtable') {
                 g.append('circle')
                  .attr('r', renderer.NODE_RADIUS)
                  .attr('fill', 'var(--bg-elevated)')
-                 .attr('stroke', d.isTombstone ? 'rgba(220, 53, 69, 0.5)' : activeTheme.accent)
+                 .attr('stroke', activeTheme.accent)
                  .attr('stroke-width', 2);
                 g.append('text')
                  .attr('text-anchor', 'middle')
                  .attr('dominant-baseline', 'central')
-                 .attr('fill', d.isTombstone ? '#dc3545' : 'var(--text-primary)')
+                 .attr('fill', 'var(--text-primary)')
                  .text(displayKey);
              } else {
                 g.append('rect')
@@ -210,13 +210,13 @@ export const LsmTreeLayer: React.FC = () => {
                  .attr('y', -renderer.CELL_H / 2)
                  .attr('width', renderer.CELL_W)
                  .attr('height', renderer.CELL_H)
-                 .attr('fill', d.isTombstone ? 'rgba(220, 53, 69, 0.1)' : 'var(--bg-elevated)')
+                 .attr('fill', 'var(--bg-elevated)')
                  .attr('stroke', 'var(--glass-border)')
                  .attr('stroke-width', 1);
                 g.append('text')
                  .attr('text-anchor', 'middle')
                  .attr('dominant-baseline', 'central')
-                 .attr('fill', d.isTombstone ? '#dc3545' : 'var(--text-primary)')
+                 .attr('fill', 'var(--text-primary)')
                  .text(displayKey);
              }
            });

@@ -7,7 +7,6 @@ export interface LayoutNode {
   width: number;
   height: number;
   key: number;
-  isTombstone: boolean;
   type: 'memtable' | 'sstable_entry';
 }
 
@@ -76,7 +75,6 @@ export class LSMTreeRenderer {
           width: this.NODE_RADIUS * 2,
           height: this.NODE_RADIUS * 2,
           key: node.key,
-          isTombstone: node.isTombstone,
           type: 'memtable'
         });
         
@@ -148,7 +146,6 @@ export class LSMTreeRenderer {
             width: this.CELL_W,
             height: this.CELL_H,
             key: entry.key,
-            isTombstone: entry.isTombstone,
             type: 'sstable_entry'
           });
         });

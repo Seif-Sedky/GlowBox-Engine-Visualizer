@@ -214,7 +214,7 @@ export const BottomControls: React.FC = () => {
           />
         )}
         <button className={styles.actionBtn} onClick={handleInsert}>Ins</button>
-        {indexType !== 'inverted' && (
+        {indexType !== 'inverted' && indexType !== 'lsmtree' && (
           <button className={styles.actionBtn} onClick={handleDelete}>Del</button>
         )}
         <button className={styles.actionBtn} onClick={handleSelect}>Sel</button>
