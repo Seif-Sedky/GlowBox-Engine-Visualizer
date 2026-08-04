@@ -1,6 +1,7 @@
 # GlowBox Engine Visualizer
 
 WEBSITE LINK: https://seif-sedky.github.io/GlowBox-Engine-Visualizer/
+
 GlowBox Engine Visualizer is an interactive, web-based educational tool designed to visualize complex database engine data structures and indexes. It allows users to watch index structures breathe, split, and collapse in real-time, providing deep insights into how databases manage and organize data under the hood.
 
 ## 🌟 Key Features
